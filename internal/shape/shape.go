@@ -1,0 +1,82 @@
+// Package shape holds the shapes of a sketch and the commands that change them.
+// Ported from MonoSketch shape.
+package shape
+
+import (
+	"math/rand/v2"
+
+	"github.com/bluemir/monosketch/internal/geo"
+	"github.com/bluemir/monosketch/internal/uuid"
+)
+
+// Shape is one of *Rectangle, *Text, *Line and *Group.
+// Two shapes with the same ID are the same shape regardless of their other attributes.
+//
+// VersionCode changes whenever an attribute changes. Every change must go through update
+// to keep it accurate.
+type Shape interface {
+	ID() string
+	// ParentID is empty if the shape is not in a group yet.
+	ParentID() string
+	VersionCode() int
+	Bound() geo.Rect
+
+	// SetBound moves or resizes the shape. Group ignores it.
+	SetBound(newBound geo.Rect)
+	// SetExtra panics if newExtra is not the extra type of the shape.
+	SetExtra(newExtra Extra)
+
+	Contains(point geo.Point) bool
+	IsVertex(point geo.Point) bool
+	IsOverlapped(rect geo.Rect) bool
+
+	// Serializable converts the shape for storing. If isIDIncluded is false, the id is marked
+	// temporary and a new id is assigned when restored, for example by copy and paste.
+	Serializable(isIDIncluded bool) SerializableShape
+
+	setParentID(parentID string)
+	update(action func() bool)
+}
+
+// base has the attributes every shape has.
+type base struct {
+	id          string
+	parentID    string
+	versionCode int
+}
+
+// newBase generates an id if id is empty.
+func newBase(id, parentID string) base {
+	if id == "" {
+		id = uuid.Generate()
+	}
+	return base{id: id, parentID: parentID, versionCode: nextVersionCode(0)}
+}
+
+func (b *base) ID() string                  { return b.id }
+func (b *base) ParentID() string            { return b.parentID }
+func (b *base) VersionCode() int            { return b.versionCode }
+func (b *base) setParentID(parentID string) { b.parentID = parentID }
+
+// update runs action and changes the version if action reports a change.
+func (b *base) update(action func() bool) {
+	if action() {
+		b.versionCode = nextVersionCode(b.versionCode)
+	}
+}
+
+// nextVersionCode returns a random number different from excluded.
+func nextVersionCode(excluded int) int {
+	for {
+		// int32 keeps the value safe as a JS number.
+		code := int(rand.Int32())
+		if code != excluded {
+			return code
+		}
+	}
+}
+
+// shapeID identifies a shape without keeping the shape itself.
+type shapeID string
+
+func (id shapeID) ID() string { return string(id) }

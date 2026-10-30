@@ -1,0 +1,128 @@
+## MonoSketch Go WASM 포팅
+
+- [x] ADR-0001, ADR-0002 검토 후 Accepted 로 변경
+- [x] 결정 필요: `livedata` 를 Go 에서 어떤 방식으로 대신할지
+- [x] 결정 필요: JS UI 가 Go 의 변경을 받는 방식 (Go 가 JS 콜백 호출 또는 JS 가 다시 읽기)
+- [x] 결정 필요: 문자 보드를 JS 에 넘기는 방식 (전체 또는 바뀐 영역)
+- [x] 결정 필요: 템플릿의 gRPC 코드 처리
+	- `internal/server/grpc.go`, `internal/client` 가 없는 `pkg/api/v1` 을 import 해서 서버 바이너리가 빌드되지 않음
+	- proto 원본(`api/proto`)과 생성 규칙이 repo 에 없음
+- [x] 결정 필요: 로컬 문서 편집 페이지의 URL (`/edit`)
+- 기반
+	- [x] 원본 Apache 2.0 LICENSE, NOTICE 고지 추가 및 포팅 사실 표시
+	- [x] 이 프로젝트 자체의 LICENSE 정하기
+	- [x] grim 의 `wasm.mk` 를 참고해 WASM 빌드 추가 (`wasm_exec.js` 포함)
+	- [x] WASM 진입점 (`wasm/`) 과 JS 연결 골격
+	- [x] 편집 페이지 템플릿과 빈 canvas 띄우기
+		- 브라우저에서 열어 확인 필요
+- 핵심 로직 포팅 (의존 순서대로, 원본 테스트 함께 이식)
+	- [x] `commons` 중 투명 문자 상수, `uuid`
+	- [x] `graphicsgeo` (`MousePointer` 제외)
+	- [x] `monobitmap`
+	- [x] `monoboard`
+	- [x] `shape` (Rectangle, Text, Line, Group, RootGroup, connector, extra style)
+	- [x] `shape-serialization` (새 포맷, version 포함)
+		- 파일 전체를 감싸는 포맷 (문서 이름, 화면 위치, connector, version). ADR-0004 참고
+	- [x] `monobitmap-manager`
+	- [x] `shapesearcher`
+	- [x] `shape-interaction-bound`
+	- [x] `shape-selection`
+	- [x] `shape-clipboard`
+- 상태·명령 포팅
+	- [x] 결정 필요: `keycommand` 의 키 → 명령 변환을 Go 와 JS 중 어디서 할지 (ADR-0005)
+	- [x] `action-manager`
+	- `statemanager` (UI 의존을 끊고 옮기기)
+		- [x] `MousePointer` 와 마우스 이벤트 → pointer 변환 (원본 `MouseEventObserver` 중 휠 스크롤 제외)
+		- [x] 마우스 명령: 추가(사각형, 텍스트, 선), 선택, 이동, 크기 조절, 선 조작, hover
+		- [x] 보드 다시 그리기, 선택한 도형의 조절 핸들, 텍스트 편집 시작과 끝
+		- [x] 동작 처리 (`OneTimeActionHandler`): 선택, 삭제, 이동, 스타일 변경, 순서, 텍스트 정렬
+		- [x] 클립보드 (`ClipboardManager`): 복사, 잘라내기, 붙여넣기, 복제
+		- [x] undo/redo 와 자동 백업 (`StateHistoryManager`)
+			- [x] 결정 필요: 원본의 300ms 뒤 백업 타이머를 Go 와 JS 중 어디서 돌릴지 (로컬 저장이 비동기 IndexedDB 가 되는 것과 함께)
+			- [x] ADR-0007 (Proposed) 확인 후 Accepted 로 변경
+		- [x] 파일 동작 (`FileRelatedActionsHelper`): 새 문서, 열기, 다른 이름 저장, 내보내기, 이름 변경
+			- 문서 동작은 JS 가 처리하고 Go 는 내보내기와 파일 내용만 만든다 (ADR-0010)
+		- [x] 앱 설정 동작 (`AppSettingActionHelper`): 글자 크기, 서식 패널, 단축키 도움말
+			- 서식 패널 보이기와 숨기기는 툴바의 도형 스타일 패널을 만들 때 함께 한다
+		- `observable` 의 distinct, combine, map 은 필요해질 때 추가 (다음 프레임 throttle 은 JS 가 맡음, ADR-0006)
+- JS 와 WASM 경계
+	- [x] 마우스·키 이벤트를 WASM 으로 넘기는 API
+		- 마우스는 canvas 기준 px 좌표(`offsetX/Y`), shift, 시각을 넘기고, Go 가 보드 좌표와 double click 을 판별
+		- 글자 크기, canvas 크기, 스크롤 위치가 바뀌면 `DrawingInfo` 를 넘김
+		- 휠 스크롤은 JS 가 처리
+	- [x] 문자 보드, 선택 영역, 툴바 상태를 JS 로 돌려주는 API
+		- 바뀐 종류 알림 콜백과 `requestAnimationFrame` 에서 읽는 API. ADR-0006
+	- [x] 클립보드: 붙여넣기 이벤트의 텍스트를 `state.Manager.Paste` 로 넘기고, `ChangeClipboard` 알림이 오면 `TakeClipboardText` 를 `navigator.clipboard.writeText` 로 쓰기
+- UI (lit-html, canvas, `<dialog>`, `popover`)
+	- [x] canvas: 문자 보드, 격자, 선택 영역, hover 표시, 스크롤
+		- [x] 문자 보드, 선택 영역, 조절 핸들, hover 강조, 휠 스크롤
+		- [x] 격자와 좌표 축 (원본 `GridCanvasViewController`, `AxisCanvasViewController`)
+			- canvas 하나에 축과 보드를 함께 그리고, 보드는 축 크기만큼 안쪽에서 시작한다. 축 모서리를 누르면 (0, 0) 으로 간다
+		- [x] 결정 필요: 글꼴. 원본은 JetBrains Mono 를 쓰고, 지금은 시스템 monospace 라 세로선 사이가 조금 뜬다 (ADR-0009)
+		- [x] 한글 같은 전각 문자가 한 칸으로 계산되어 옆 글자와 겹침 (원본도 한 칸으로 계산함, 어떻게 할지 결정 필요) (ADR-0008)
+		- [x] 칸 높이를 세로선 글자 높이에 맞춰서 한글 줄 사이가 빠듯함. 글자 크기 설정(13~25)과 함께 확인
+			- 세로선이 끊기지 않는 지금 방식을 유지한다
+	- [x] 텍스트 편집 (IME 조합 위치 포함)
+		- 조합 중인 글자는 textarea 의 caret 위치에 나온다 (CDP `Input.imeSetComposition` 로 확인)
+		- [ ] 실제 OS 입력기(macOS, Windows)에서 후보 창 위치 확인
+		- [x] 텍스트 편집 중 입력 칸이 도형의 정렬(가운데, 아래 등)을 따르지 않고 왼쪽 위에서 시작함. 원본 동작 확인 후 맞추기
+			- 원본도 왼쪽 위에서 시작하므로 그대로 둔다
+		- [x] 일반 텍스트가 여러 줄로 늘어날 때 입력 칸 높이가 따라 늘지 않음
+		- `ChangeTextEditing` 알림이 오면 `TextEditing.BoundPx` 에 입력 칸을 띄우고, 입력마다 `UpdateEditingText`, 닫을 때 `FinishTextEditing`
+	- [x] 툴바: 마우스 동작 선택, 도형 스타일 패널, 오른쪽 툴바
+		- [x] 도형 스타일 패널 (순서, 위치와 크기, 채우기, 테두리, 선, 선 끝 모양, 텍스트 정렬)
+		- [x] 서식 패널 보이기와 숨기기 (문서 메뉴)
+		- [x] 툴바 버튼을 원본처럼 아이콘으로 바꿀지 결정
+			- 원본 아이콘과 title 툴팁. undo, redo 는 원본에 버튼이 없어 아이콘을 새로 그림
+		- [x] 원본 오른쪽 툴바의 스크롤 방향 고정(가로, 세로, 둘 다) 버튼
+	- [x] dropdown 메뉴, 각종 dialog
+		- [x] 문서 메뉴(popover), 이름 변경, 내보내기, 같은 ID 문서, 삭제 확인, 오류, 단축키 도움말 dialog
+		- [x] 문서 메뉴가 화면 가운데에 뜸. 버튼 아래에 붙이기 (CSS anchor positioning 검토)
+	- [x] 내보내기 (export shapes)
+	- [x] 테마 (dark, light)
+		- 문서 메뉴에서 시스템, 라이트, 다크 중 선택
+	- [x] 키보드 단축키
+		- 단축키 표는 `event.code` 기준, 원본 `KeyCommand` 와 같은 키. ADR-0005
+		- 단축키 도움말 dialog 도 같은 표로 그리기
+	- [x] `commons` 나머지 (키 코드, 타이머, command 키 판별) 를 JS 쪽에서 처리
+- 로컬 저장
+	- [ ] IndexedDB 에 문서 저장과 자동 저장
+		- [x] 마지막 문서 자동 저장과 새로고침 후 복원
+		- [x] 문서 이름, 화면 위치 저장
+		- `ChangeBackup` 알림 뒤 300ms 지나면 `Backup` 을 불러 돌려받은 내용을 쓰기, 시작할 때 읽어서 `Restore`. ADR-0007
+	- [x] 최근 문서, 문서 이름 변경, 삭제
+- 서버 저장
+	- [x] 결정 필요: 서버 문서를 만드는 시점, 서버 저장 시점, 익명 문서 삭제 여부 (ADR-0011)
+	- [x] 문서 모델 (ID, revision, 마지막 접근 시각, 소유자, 공개 범위)
+	- [x] 생성, 조회, 수정 API (revision 불일치 시 `409`)
+	- [x] 충돌 dialog (덮어쓰기, 서버 것 받기, 사본으로 저장)
+	- [x] 크기 제한과 IP 별 생성 횟수 제한
+	- [x] 마지막 접근 후 90일 지난 익명 문서 정리 (config 로 기간 설정)
+	- [x] 로그인한 상태에서 만든 문서는 처음부터 소유 문서로 생성
+	- [x] 로그인 후 "내 문서"로 가져오기 (새 ID 의 사본으로 소유, 원본은 유지)
+	- [x] 소유 문서 공개 범위 설정 (비공개, 누구나 보기, 누구나 편집. 기본값 비공개)
+	- [x] 권한 검사 (편집 불가 문서는 읽기 전용으로 열고 사본 만들기 제공)
+		- [x] 읽기 전용 문서는 편집 자체를 막기. 지금은 고칠 수 있지만 서버에 저장하지 않는다 (ADR-0012)
+		- [x] 읽기 전용 문서에서 사본 만들기가 실패하면(오프라인 등) 사본이 로컬에만 남은 채 보기 전용으로 남음. 사본은 `/edit` 에서 열도록 할지 결정
+			- 실패를 알리고 원래 문서에 머문다. 사본은 서버에 만든 뒤에만 연다
+	- [ ] 소유 문서 삭제 UI (API 는 있음)
+	- [ ] 문서 API 의 HTTP 수준 테스트 (지금은 backend 단위 테스트와 브라우저 확인만 있음)
+	- [ ] 이미 서버에 올린 로컬 문서를 `/edit` 에서 "파일 열기"의 "바꾸기"로 덮으면, 다음에 `/p/<id>` 를 열 때 서버로 저장됨. 막을지 결정
+- 페이지
+	- [x] 문서 페이지 (권한에 따라 편집 또는 읽기 전용)
+		- `/p/<id>` 는 편집기 페이지에 `server-id` 를 넘겨 연다
+
+## Backlog
+
+- [ ] flag 인자 정리 (원본 동작을 테스트로 고정한 뒤)
+	- `Line.MoveAnchorPoint(isReduceRequired, justMoveAnchor)`, `Line.MoveEdge(isReduceRequired)`
+	- `MoveLineAnchor`, `MoveLineEdge` 명령의 `IsUpdateConfirmed`, `JustMoveAnchor`
+	- `Shape.Serializable(isIDIncluded)`
+- [ ] 소유 문서에 편집자 지정
+- [ ] 소유 문서를 익명 문서로 복사 또는 전환하는 기능 검토
+	- 복사: 새 ID 의 익명 문서를 만들고 소유 문서는 유지
+	- 전환: 같은 ID 의 소유자를 없애 익명 문서로 바꿈 (90일 만료가 다시 적용됨)
+- [ ] 서버 문서 버전 기록과 되돌리기
+- [x] 폭 또는 높이가 1 칸인 사각형 테두리에서 마지막 칸이 그려지지 않는 원본 동작을 고칠지 결정
+	- `internal/bitmapmanager/rectangle.go` 의 `drawBorder`
+- [ ] 개발용 콘솔 명령 (원본 `DebugCommandController`, DEBUG 빌드에서 `window.cmd("Undo")` 처럼 동작 실행)

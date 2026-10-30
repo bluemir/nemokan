@@ -1,0 +1,95 @@
+<html>
+	<head>
+		<title>monosketch - Register</title>
+		{{ template "snippet/header.html" . }}
+	</head>
+	<body layout="one-page">
+		<header>
+			<section row>
+				<global-navigation-bar></global-navigation-bar>
+			</section>
+		</header>
+		<main>
+			<section row>
+				<h1>Register</h1>
+				<form method="post">
+					<section grid>
+						<section col="3">
+							<label>Username</label>
+						</section>
+						<section col="9">
+							<input name="username" autocomplete="username" />
+						</section>
+					</section>
+					<section grid>
+						<section col="3">
+							<label>Email</label>
+						</section>
+						<section col="9">
+							<input name="email" type="email" autocomplete="email" />
+							<small>계정 복구 메일을 받을 주소입니다. 비워도 가입됩니다.</small>
+						</section>
+					</section>
+					<section grid>
+						<section col="3">
+							<label>Password</label>
+						</section>
+						<section col="9">
+							<input name="password" type="password" autocomplete="new-password" />
+						</section>
+					</section>
+					<section grid>
+						<section col="3">
+							<label>Password Confirm</label>
+						</section>
+						<section col="9">
+							<input name="confirm" type="password" autocomplete="new-password" />
+						</section>
+					</section>
+					<button>Register</button>
+					<passkey-register username-from="form [name=username]" redirect="/">Register with Passkey</passkey-register>
+				</form>
+			</section>
+		</main>
+		<dialog enhanced>
+			<header>
+				<h1>Fail to Register</h1>
+			</header>
+			<main>
+
+			</main>
+			<footer>
+				<a fn href="#" role="close">Close</a>
+			</footer>
+		</dialog>
+		<script type="module">
+			import * as $ from "bm.js/bm.module.js";
+
+			$.get("form").on("submit", async (evt) => {
+				evt.preventDefault();
+
+				try {
+					let fd = new FormData(evt.target);
+
+					if (fd.get("confirm") != fd.get("password")) {
+						throw Error("password confirm not matched");
+					}
+
+					let res = await $.request("POST", `/api/v1/users`, {body:fd});
+
+					location.href = "/";
+				} catch(e) {
+					console.log(e);
+
+					// render error message
+
+					$.get("dialog").showModal();
+				}
+			});
+			$.get(`dialog [role="close"]`).on("click", evt => {
+				evt.preventDefault()
+				evt.target.closest("dialog").close();
+			});
+		</script>
+	</body>
+</html>

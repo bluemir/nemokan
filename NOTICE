@@ -1,0 +1,21 @@
+monosketch-clone
+Copyright 2026 BlueMir
+Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+This project is a Go port of MonoSketch.
+
+MonoSketch
+Copyright (c) 2023, tuanchauict
+https://github.com/tuanchauict/MonoSketch
+Licensed under the Apache License, Version 2.0 (see third_party/monosketch/LICENSE).
+
+The original Kotlin source (main branch, commit 6eeb753b436509e49507a66344be5c53c890e8f5)
+was translated to Go and modified. The user interface was rewritten and
+the storage format is not compatible with the original.
+
+D2Coding font
+Copyright (c) 2015, NAVER Corporation (https://www.navercorp.com),
+with Reserved Font Name D2Coding.
+https://github.com/naver/d2codingfont
+Licensed under the SIL Open Font License, Version 1.1 (see third_party/d2coding/OFL.txt).
+The font file (Ver1.4.0-20261003, regular) is distributed unmodified.

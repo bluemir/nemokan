@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>monosketch - Admin Page</title>
+		{{ template "snippet/header.html" . }}
+	</head>
+	<body layout="full">
+		<header>
+			<global-navigation-bar admin></global-navigation-bar>
+		</header>
+		<menu>
+			<admin-menu></admin-menu>
+		</menu>
+		<main>
+			<slot></slot>
+		</main>
+		<footer>
+			<admin-footer></admin-footer>
+		</footer>
+	</body>
+</html>
