@@ -83,6 +83,29 @@ func Register(c *gin.Context) error {
 	return nil
 }
 
+// Bootstrap 은 첫 관리자를 만든다. 부트스트랩 토큰을 확인한 뒤에만 불린다.
+//
+// @Router /api/v1/bootstrap [post]
+func Bootstrap(c *gin.Context) error {
+	req := struct {
+		Username string `form:"username" binding:"required,min=4"`
+		Password string `form:"password" binding:"required,min=4"`
+	}{}
+
+	if err := c.ShouldBind(&req); err != nil {
+		return err
+	}
+
+	u, _, err := backends(c).Auth.Register(c.Request.Context(), req.Username, req.Password,
+		auth.WithGroup("user", "admin"))
+	if err != nil {
+		return err
+	}
+
+	c.JSON(http.StatusOK, u)
+	return nil
+}
+
 // @Router /api/v1/login [post]
 func Login(c *gin.Context) error {
 	req := struct {

@@ -21,7 +21,8 @@ var (
 )
 
 func IssueBootstrapToken(ctx *gin.Context) {
-	// TODO if has one or more admin, reject bootstraping
+	// 관리자가 이미 있어도 막지 않는다. 토큰은 서버 로그에만 찍히므로
+	// 서버에 접근할 수 있는 사람만 쓸 수 있다. 관리자를 잃었을 때 되살리는 길이기도 하다.
 	tokenMutex.Lock()
 	defer tokenMutex.Unlock()
 

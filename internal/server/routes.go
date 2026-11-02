@@ -61,15 +61,15 @@ func (server *Server) routes(app gin.IRouter, noRoute func(...gin.HandlerFunc)) 
 		v1.GET("/passkeys", requireLogin, api(handler.ListPasskeys))
 		v1.DELETE("/passkeys/:index", requireLogin, api(handler.DeletePasskey))
 
-		v1.POST("/bootstrap", bodyReaderTweak, bootstrap.CheckBootstrapToken, api(handler.Register))
+		v1.POST("/bootstrap", bodyReaderTweak, bootstrap.CheckBootstrapToken, api(handler.Bootstrap))
 
 		v1.GET("/can/:verb/:resource", api(handler.CanAPI))
 		v1.GET("/can/:verb", api(handler.CanAPI))
 		v1.GET("/can", api(handler.CanBulkAPI))
 
-		v1.GET("/users", api(handler.ListUsers))
-		v1.GET("/groups", api(handler.ListGroups))
-		v1.GET("/roles", api(handler.ListRoles))
+		v1.GET("/users", can(verb.Create, resource.Server), api(handler.ListUsers))
+		v1.GET("/groups", can(verb.Create, resource.Server), api(handler.ListGroups))
+		v1.GET("/roles", can(verb.Create, resource.Server), api(handler.ListRoles))
 
 		// Documents. See ADR-0011.
 		v1.POST("/documents", api(handler.CreateDocument))
@@ -102,11 +102,13 @@ func (server *Server) routes(app gin.IRouter, noRoute func(...gin.HandlerFunc)) 
 		app.GET("/users/recover", html("users/recover.html"))
 		app.GET("/users/recover/:token", handler.EnterRecovery, html("users/recover-confirm.html"))
 		app.GET("/users/verify-email/:token", handler.ConfirmEmail, html("users/verify-email.html"))
-		app.GET("/admin", html("admin.html"))
-		app.GET("/admin/iam", redirect("/admin/iam/users"))
-		app.GET("/admin/iam/users", html("admin/iam/users.html"))
-		app.GET("/admin/iam/groups", html("admin/iam/groups.html"))
-		app.GET("/admin/iam/roles", html("admin/iam/roles.html"))
+
+		admin := app.Group("/admin", can(verb.Create, resource.Server))
+		admin.GET("", html("admin.html"))
+		admin.GET("/iam", redirect("/admin/iam/users"))
+		admin.GET("/iam/users", html("admin/iam/users.html"))
+		admin.GET("/iam/groups", html("admin/iam/groups.html"))
+		admin.GET("/iam/roles", html("admin/iam/roles.html"))
 
 		// bootstrap
 		app.GET("/bootstrap", bootstrap.IssueBootstrapToken, html("bootstrap.html"))
