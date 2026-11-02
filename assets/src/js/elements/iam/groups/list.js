@@ -11,11 +11,6 @@ class CustomElement extends HTMLElement {
 
 				:host {
 				}
-				table {
-					th, td {
-						border: 1px solid var(--gray-400);
-					}
-				}
 			</style>
 			<table>
 				<thead>
@@ -25,15 +20,10 @@ class CustomElement extends HTMLElement {
 					</tr>
 				</thead>
 				<tbody>
-				${elem.items.map((item) => html`
+				${this.items.map((item) => html`
 					<tr>
 						<td>${item.name}</td>
-						<td>
-							${item.roles.map(role => html`
-								<span>${role}</span>
-							`)}
-							<c-button>+</c-button>
-						</td>
+						<td>${item.roles.join(", ")}</td>
 					</tr>
 				`)}
 				</tbody>
@@ -49,7 +39,7 @@ class CustomElement extends HTMLElement {
 	}
 
 	async render() {
-		render(tmpl(this), this.shadowRoot);
+		render(this.template(), this.shadowRoot);
 	}
 
 	async onConnected() {

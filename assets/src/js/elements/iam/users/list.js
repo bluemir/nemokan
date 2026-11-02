@@ -9,11 +9,6 @@ var tmpl = (elem) => html`
 
 		:host {
 		}
-		table {
-			th, td {
-				border: 1px solid var(--gray-400);
-			}
-		}
 
 	</style>
 	<table>
@@ -26,7 +21,7 @@ var tmpl = (elem) => html`
 	${elem.items.map((item) => html`
 		<tr>
 			<td>${item.name}</td>
-			<td>${item.groups.join(",")}</td>
+			<td>${item.groups.map(group => group.name).join(", ")}</td>
 		</tr>
 	`)}
 	</table>

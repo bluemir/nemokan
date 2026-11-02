@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>monosketch - Bootstrap</title>
+		{{ template "snippet/header.html" . }}
+	</head>
+	<body layout="one-page">
+		<header>
+			<section row>
+				<global-navigation-bar></global-navigation-bar>
+			</section>
+		</header>
+		<main>
+			<section row>
+				<h1>Bootstrap</h1>
+				<p>Make the first account of this server. The token is in the server log, and expires in 5 minutes.</p>
+				<form class="stacked">
+					<label>Token <input name="token" autocomplete="off" required></label>
+					<label>Username <input name="username" autocomplete="username" required></label>
+					<label>Password <input name="password" type="password" autocomplete="new-password" required></label>
+					<button class="primary">Create account</button>
+				</form>
+				<p role="alert" hidden></p>
+			</section>
+		</main>
+		<script type="module">
+			import * as $ from "bm.js/bm.module.js";
+			import {errorMessage} from "@/common.js";
+
+			const alert = $.get(`p[role="alert"]`);
+
+			$.get("form").on("submit", async evt => {
+				evt.preventDefault();
+				alert.hidden = true;
+				try {
+					await $.request("POST", "/api/v1/bootstrap", {body: new FormData(evt.target)});
+					location.href = "/users/login";
+				} catch(e) {
+					console.error(e);
+					alert.textContent = errorMessage(e);
+					alert.hidden = false;
+				}
+			});
+		</script>
+	</body>
+</html>

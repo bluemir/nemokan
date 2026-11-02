@@ -1,8 +1,8 @@
 import * as $ from "bm.js/bm.module.js";
-//import {html, render} from '/lib/lit-html/lit-html.js';
 import {html, render} from 'lit-html';
 import {css} from "@/common.js";
 
+// The bar on the top of the pages. It shows the account links for the logged in user.
 class GlobalNavigationBar extends HTMLElement {
 	template() {
 		return html`
@@ -11,35 +11,49 @@ class GlobalNavigationBar extends HTMLElement {
 
 				:host {
 					display: flex;
-					justify-content: space-between;
-					align-items: flex-end;
+					align-items: center;
+					gap: 1.5rem;
+					min-height: 3rem;
 				}
-				a {
-					color: inherit;
+				nav {
+					display: flex;
+					align-items: center;
+					gap: 1rem;
+				}
+				nav:last-child {
+					margin-left: auto;
+				}
+				a, button {
+					padding: 0;
+					border: none;
+					background: none;
+					color: var(--muted);
 					text-decoration: none;
 				}
-				a:hover {
-					text-decoration: underline;
+				a:hover, button:hover:not(:disabled) {
+					background: none;
+					color: var(--text);
+				}
+				#logo {
+					color: var(--text);
+					font-weight: bold;
 				}
 			</style>
-			<section id="logo">
-				<a href="/">monosketch</a>
-				${this.hasAttribute("admin") ? html`
-					 <a href="/admin">Admin</a>
-				 `:""}
-			</section>
-			<section id="action">
+			<nav>
+				<a id="logo" href="/">monosketch</a>
+				<a href="/edit">Editor</a>
+			</nav>
+			<nav>
 				${this.user ? html`
-					<a href="/admin"><c-icon kind="construction" /></a>
-					<a href="/users/profile">Profile</a>
+					<user-can action="create" resource="server"><a href="/admin">Admin</a></user-can>
 					<a href="/users/passkeys">Passkeys</a>
-					<a href="/users/settings">Settings</a>
-					<a href="/users/logout" >Logout</a>
+					<a href="/users/settings">${this.user.name}</a>
+					<button @click=${() => this.logout()}>Logout</button>
 				` : html`
 					<a href="/users/login">Login</a>
 					<a href="/users/register">Register</a>
 				`}
-			</section>
+			</nav>
 		`;
 	}
 	constructor() {
@@ -53,12 +67,19 @@ class GlobalNavigationBar extends HTMLElement {
 	}
 
 	async onConnected() {
-		let res = await $.request("GET", `/api/v1/users/me`);
-
-		this.user = res.json;
-
+		try {
+			const res = await $.request("GET", `/api/v1/users/me`);
+			this.user = res.json;
+		} catch {
+			// Not logged in.
+			this.user = null;
+		}
 		this.render();
+	}
+
+	async logout() {
+		await $.request("GET", `/api/v1/logout`);
+		location.href = "/";
 	}
 }
 customElements.define("global-navigation-bar", GlobalNavigationBar);
-

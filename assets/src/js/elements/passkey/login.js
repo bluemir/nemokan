@@ -9,9 +9,6 @@ var tmpl = (elem) => html`
 		:host {
 			display: contents;
 		}
-		p[role="alert"] {
-			color: var(--red-600);
-		}
 	</style>
 	<button ?disabled=${elem.busy} @click=${() => elem.login()}>
 		<slot>Login with Passkey</slot>
@@ -19,7 +16,7 @@ var tmpl = (elem) => html`
 	${elem.message ? html`<p role="alert">${elem.message}</p>` : ""}
 `;
 
-// <passkey-login redirect="/posts"> 는 username 없이 passkey 로 로그인한다.
+// <passkey-login redirect="/"> 는 username 없이 passkey 로 로그인한다.
 class CustomElement extends HTMLElement {
 	constructor() {
 		super();

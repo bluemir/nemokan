@@ -16,18 +16,10 @@
 				<p><output name="username"></output> 계정의 로그인 수단을 다시 설정합니다.</p>
 
 				<h2>새 비밀번호</h2>
-				<form>
-					<label>Password</label>
-					<section>
-						<input name="password" type="password" autocomplete="new-password" required />
-					</section>
-					<label>Password Confirm</label>
-					<section>
-						<input name="confirm" type="password" autocomplete="new-password" required />
-					</section>
-					<div>
-						<button enhanced>비밀번호 설정</button>
-					</div>
+				<form class="stacked">
+					<label>Password <input name="password" type="password" autocomplete="new-password" required></label>
+					<label>Password Confirm <input name="confirm" type="password" autocomplete="new-password" required></label>
+					<button class="primary">비밀번호 설정</button>
 				</form>
 
 				<h2>또는 passkey 등록</h2>

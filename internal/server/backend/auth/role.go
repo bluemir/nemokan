@@ -11,8 +11,8 @@ import (
 )
 
 type Role struct {
-	Name  string `gorm:"primaryKey;size:256"`
-	Rules []Rule `gorm:"type:bytes;serializer:gob"`
+	Name  string `gorm:"primaryKey;size:256" json:"name"`
+	Rules []Rule `gorm:"type:bytes;serializer:gob" json:"rules"`
 }
 
 type Rule struct {

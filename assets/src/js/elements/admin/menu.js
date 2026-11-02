@@ -10,19 +10,19 @@ var tmpl = (elem) => html`
 		}
 		a {
 			display: block;
+			padding: 0.375rem 0.75rem;
+			color: inherit;
 			text-decoration: none;
-			padding: 0.5rem 0;
 		}
 		a:hover {
-			background: var(--gray-100);
+			background: var(--hover);
 		}
 		a.selected {
-			background: var(--green-100);
+			box-shadow: inset 2px 0 var(--accent);
 		}
 	</style>
-	<a href="/admin/users" >IAM</a>
-	<a href="/admin/server">Server</a>
-	<a href="/admin/events">Events</a>
+	<a href="/admin" exact>Overview</a>
+	<a href="/admin/iam">IAM</a>
 `;
 
 class AdminMenu extends HTMLElement {

@@ -4,12 +4,46 @@
 		<title>monosketch</title>
 		{{ template "snippet/header.html" . }}
 		<style>
-			header {
-				background-color: var(--gray-300);
+			#hero {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+				align-items: center;
+				gap: 2rem;
+				padding-block: 4rem;
 			}
-			#hero-contents {
-				background-color: var(--blue-gray-600);
-				color: var(--gray-200);
+			#hero h1 {
+				font-size: 2rem;
+			}
+			#hero p {
+				margin-block: 1rem 1.5rem;
+				color: var(--muted);
+			}
+			#hero pre {
+				margin: 0;
+				padding: 1rem;
+				overflow-x: auto;
+				border: 1px solid var(--border);
+				font: inherit;
+				line-height: 1.05;
+			}
+			#features {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+				gap: 2rem;
+				padding-block: 2rem 4rem;
+				border-top: 1px solid var(--border);
+			}
+			#features h2 {
+				margin-bottom: 0.5rem;
+				font-size: 0.875rem;
+			}
+			#features p, body > footer {
+				color: var(--muted);
+			}
+			body > footer {
+				padding-block: 1rem;
+				border-top: 1px solid var(--border);
+				font-size: 0.75rem;
 			}
 		</style>
 	</head>
@@ -20,47 +54,47 @@
 			</div>
 		</header>
 		<main>
-			<section id="hero-contents">
-				<div row grid>
-					<div col="7">
-						<h1>Hello World!</h1>
-						<p>
-							this is landing page example!
-						</p>
-						<section>
-							<user-can action="read" resource="page.posts">
-								<a role="btn" href="/posts">Posts</a>
-							</user-can>
-							<user-can action="read" resource="page.register">
-								<a role="btn" href="/users/register">Register</a>
-							</user-can>
-						</section>
-					</div>
-					<c-placeholder col="5"></c-placeholder>
+			<section id="hero" row>
+				<div>
+					<h1>monosketch</h1>
+					<p>Draw diagrams and UI wireframes as text. Copy them as Markdown for documents, issues and AI agents.</p>
+					<a role="btn" class="primary" href="/edit#new">New document</a>
+					<a role="btn" href="/edit">Open editor</a>
 				</div>
+				<pre aria-label="An example wireframe">
+┌──────────────────────────────────┐
+│ Settings                [ Save ] │
+├───────────┬──────────────────────┤
+│ Profile   │ Name  [____________] │
+│ Security  │ Email [____________] │
+│ Billing   │                      │
+│           │ [x] Public profile   │
+│           │ [ ] Show email       │
+└───────────┴──────────────────────┘</pre>
 			</section>
-			<section id="features">
-				<div row grid>
-					<section col="4">
-						<c-icon kind="sync_saved_locally" size="5rem"></c-icon>
-						<h3>Landing Page</h3>
-						<p>A landing page is a standalone web page that potential customers can “land” on when they click through from an email, ad, or other digital location.</p>
-					</section>
-					<section col="4">
-						<c-icon kind="home" size="5rem;"></c-icon>
-						<h3>Default Page</h3>
-						<p>Default layout is used in plain pages. It has simple header and contents.</p>
-					</section>
-					<section col="4">
-						<c-icon kind="settings_applications" size="5rem"></c-icon>
-						<h3>Admin Page</h3>
-						<p>Rich Layout for complicated header, footer and side menu</p>
-					</section>
-				</div>
+			<section id="features" row>
+				<section>
+					<h2>Shapes and lines</h2>
+					<p>Rectangles, text and lines which stay connected when the shapes move.</p>
+				</section>
+				<section>
+					<h2>UI elements</h2>
+					<p>Buttons, inputs, tables, tabs and more, for sketching screens.</p>
+				</section>
+				<section>
+					<h2>Layers and groups</h2>
+					<p>Group shapes, reorder them, and hide or lock layers.</p>
+				</section>
+				<section>
+					<h2>Copy and share</h2>
+					<p>Copy as Markdown, download as SVG or PNG, or share a link. Documents are kept in your browser first.</p>
+				</section>
 			</section>
 		</main>
-		<script type="module">
-
-		</script>
+		<footer>
+			<div row>
+				Based on <a href="https://github.com/tuanchauict/MonoSketch">MonoSketch</a>, under the Apache License 2.0.
+			</div>
+		</footer>
 	</body>
 </html>

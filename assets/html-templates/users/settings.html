@@ -16,15 +16,13 @@
 
 				<h2>Email</h2>
 				<p>계정 복구 메일을 받을 주소입니다. 비워두면 복구할 수 없습니다.</p>
-				<form>
-					<label>Email</label>
-					<section>
-						<input name="email" type="email" autocomplete="email" />
-						<output name="verified"></output>
-					</section>
-					<div>
-						<button enhanced>저장</button>
-					</div>
+				<form class="stacked">
+					<label>
+						Email
+						<input name="email" type="email" autocomplete="email">
+						<small><output name="verified"></output></small>
+					</label>
+					<button class="primary">저장</button>
 				</form>
 				<p role="status" hidden></p>
 			</section>

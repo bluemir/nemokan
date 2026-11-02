@@ -1,21 +1,18 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>monosketch - Admin Page</title>
+		<title>monosketch - Admin</title>
 		{{ template "snippet/header.html" . }}
 	</head>
-	<body layout="full">
-		<header>
-			<global-navigation-bar admin></global-navigation-bar>
-		</header>
-		<menu>
-			<admin-menu></admin-menu>
-		</menu>
-		<main>
-			<slot></slot>
-		</main>
-		<footer>
-			<admin-footer></admin-footer>
-		</footer>
+	<body>
+		<admin-page>
+			<h1>Admin</h1>
+			<p>Manage the users, groups and roles of this server.</p>
+			<ul>
+				<li><a href="/admin/iam/users">Users</a></li>
+				<li><a href="/admin/iam/groups">Groups</a></li>
+				<li><a href="/admin/iam/roles">Roles</a></li>
+			</ul>
+		</admin-page>
 	</body>
 </html>

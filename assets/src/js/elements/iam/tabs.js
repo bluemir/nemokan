@@ -26,7 +26,7 @@ class CustomElement extends HTMLElement {
 	}
 
 	async render() {
-		render(template(this.params), this.shadowRoot);
+		render(this.template(), this.shadowRoot);
 	}
 
 	get params() {

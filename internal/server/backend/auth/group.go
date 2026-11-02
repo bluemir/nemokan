@@ -9,7 +9,7 @@ import (
 )
 
 type Group struct {
-	Name string `gorm:"primaryKey;size:256"`
+	Name string `gorm:"primaryKey;size:256" json:"name"`
 }
 
 func (m *Manager) CreateGroup(ctx context.Context, name string) (*Group, error) {

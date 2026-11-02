@@ -1,3 +1,14 @@
+<script>
+	// Pages use the theme chosen in the editor, which keeps it in localStorage.
+	try {
+		const theme = localStorage.getItem("monosketch.theme");
+		if (theme === "light" || theme === "dark") {
+			document.documentElement.dataset.theme = theme;
+		}
+	} catch {
+		// The system theme is used.
+	}
+</script>
 <script type="importmap" rev="{{rev .}}">
 	{
 		"imports": {

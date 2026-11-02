@@ -13,13 +13,13 @@ var tmpl = (elem) => html`
 		}
 
 		::slotted(.selected) {
-			border-bottom: 0.2rem solid var(--green-400);
+			border-bottom: 0.2rem solid var(--accent);
 		}
 		::slotted(a) {
-			color: black;
+			color: inherit;
 			text-decoration: none;
 			padding: 0.3rem 0.5rem;
-			border-bottom: 0.2rem solid var(--gray-200);
+			border-bottom: 0.2rem solid var(--border);
 		}
 	</style>
 	<slot></slot>

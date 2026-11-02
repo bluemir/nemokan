@@ -11,26 +11,17 @@ class CustomElement extends HTMLElement {
 
 				:host {
 				}
-				table {
-					th, td {
-						border: 1px solid var(--gray-400);
-					}
-				}
 			</style>
 			<table>
 				<thead>
 					<tr>
 						<th>Name</th>
-						<th></th>
 					</tr>
 				</thead>
 				<tbody>
 				${this.#items.map((item) => html`
 					<tr>
 						<td>${item.name}</td>
-						<td>
-							<a href="#">edit</a>
-						</td>
 					</tr>
 				`)}
 				</tbody>
@@ -46,7 +37,7 @@ class CustomElement extends HTMLElement {
 	#items = [];
 
 	async render() {
-		render(tmpl(this), this.shadowRoot);
+		render(this.template(), this.shadowRoot);
 	}
 
 	async onConnected() {

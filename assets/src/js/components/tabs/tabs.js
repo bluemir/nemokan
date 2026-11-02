@@ -29,10 +29,10 @@ var tmpl = (app) => html`
 		}
 		::slotted([slot=header]) {
 			padding: 0.5rem 1rem;
-			border-bottom: 0.2rem solid var(--gray-200);
+			border-bottom: 0.2rem solid var(--border);
 		}
 		::slotted([slot=header].selected) {
-			border-bottom: 0.2rem solid var(--green-400);
+			border-bottom: 0.2rem solid var(--accent);
 		}
 		::slotted([slot=panel]) {
 			display: none;

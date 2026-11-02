@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 	<head>
 		<title>monosketch - Register</title>
@@ -12,43 +13,21 @@
 		<main>
 			<section row>
 				<h1>Register</h1>
-				<form method="post">
-					<section grid>
-						<section col="3">
-							<label>Username</label>
-						</section>
-						<section col="9">
-							<input name="username" autocomplete="username" />
-						</section>
-					</section>
-					<section grid>
-						<section col="3">
-							<label>Email</label>
-						</section>
-						<section col="9">
-							<input name="email" type="email" autocomplete="email" />
-							<small>계정 복구 메일을 받을 주소입니다. 비워도 가입됩니다.</small>
-						</section>
-					</section>
-					<section grid>
-						<section col="3">
-							<label>Password</label>
-						</section>
-						<section col="9">
-							<input name="password" type="password" autocomplete="new-password" />
-						</section>
-					</section>
-					<section grid>
-						<section col="3">
-							<label>Password Confirm</label>
-						</section>
-						<section col="9">
-							<input name="confirm" type="password" autocomplete="new-password" />
-						</section>
-					</section>
-					<button>Register</button>
+				<form class="stacked" method="post">
+					<label>Username <input name="username" autocomplete="username" required></label>
+					<label>
+						Email
+						<input name="email" type="email" autocomplete="email">
+						<small>계정 복구 메일을 받을 주소입니다. 비워도 가입됩니다.</small>
+					</label>
+					<label>Password <input name="password" type="password" autocomplete="new-password"></label>
+					<label>Password Confirm <input name="confirm" type="password" autocomplete="new-password"></label>
+					<button class="primary">Register</button>
 					<passkey-register username-from="form [name=username]" redirect="/">Register with Passkey</passkey-register>
 				</form>
+				<p>
+					<a href="/users/login">Login</a>
+				</p>
 			</section>
 		</main>
 		<dialog enhanced>

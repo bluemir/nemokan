@@ -1,0 +1,67 @@
+/* Buttons, fields, tables and messages, the same as the editor. */
+button, input, select, textarea {
+	font: inherit;
+	color: inherit;
+}
+button, [role="btn"] {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.375rem;
+	padding: 0.375rem 0.75rem;
+	border: 1px solid var(--border);
+	background: none;
+	color: inherit;
+	text-decoration: none;
+	cursor: pointer;
+
+	&:hover:not(:disabled) {
+		background: var(--hover);
+	}
+	&:disabled {
+		opacity: 0.4;
+		cursor: default;
+	}
+	&.primary, &[enhanced="primary"] {
+		border-color: var(--accent);
+		background: var(--accent);
+		color: var(--on-accent);
+	}
+	&[enhanced="error"] {
+		border-color: var(--error);
+		color: var(--error);
+	}
+}
+input, select, textarea {
+	padding: 0.375rem 0.5rem;
+	border: 1px solid var(--border);
+	background: var(--background);
+
+	&:focus-visible {
+		outline: 1px solid var(--accent);
+		outline-offset: -1px;
+	}
+}
+dialog {
+	border: 1px solid var(--border);
+	background: var(--background);
+	color: var(--text);
+}
+table {
+	border-collapse: collapse;
+}
+th, td {
+	padding: 0.375rem 0.75rem;
+	border: 1px solid var(--border);
+	text-align: left;
+}
+th {
+	color: var(--muted);
+	font-weight: normal;
+}
+[role="alert"] {
+	color: var(--error);
+}
+[role="status"] {
+	color: var(--muted);
+}

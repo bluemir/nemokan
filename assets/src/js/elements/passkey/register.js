@@ -10,9 +10,6 @@ var tmpl = (elem) => html`
 		:host {
 			display: contents;
 		}
-		p[role="alert"] {
-			color: var(--red-600);
-		}
 	</style>
 	<button type="button" ?disabled=${elem.busy} @click=${() => elem.register()}>
 		<slot>Register with Passkey</slot>

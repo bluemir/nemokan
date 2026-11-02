@@ -6,14 +6,12 @@ var tmpl = (elem) => html`
 	<style>
 		${css}
 
-		table {
-			th, td {
-				border: 1px solid var(--gray-400);
-			}
+		form {
+			display: flex;
+			gap: 0.5rem;
+			margin-bottom: 1rem;
 		}
-		p[role="alert"] {
-			color: var(--red-600);
-		}
+
 	</style>
 	<form @submit=${(evt) => elem.add(evt)}>
 		<input name="label" placeholder="passkey 이름" />

@@ -25,28 +25,25 @@ var tmpl = (app) => html`
 
 		header {
 			grid-column: span 2;
-			background: var(--green-800);
+			border-bottom: 1px solid var(--border);
 		}
 		aside {
-			min-width: 15rem;
+			min-width: 12rem;
 			grid-row: span 2;
+			padding: 1rem 0;
+			border-right: 1px solid var(--border);
 		}
 		main {
+			padding: 1rem 2rem;
 		}
 		footer {
-		}
-
-		global-navigation-bar {
-			--fg-color: white;
-			margin: 0.3rem 0;
-		}
-		admin-menu::part(item) {
-			padding: 0.5rem 1rem;
+			color: var(--muted);
+			font-size: 0.75rem;
 		}
 
 	</style>
 	<header>
-		<global-navigation-bar admin></global-navigation-bar>
+		<global-navigation-bar></global-navigation-bar>
 	</header>
 	<aside>
 		<admin-menu></admin-menu>
