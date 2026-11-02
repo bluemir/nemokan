@@ -7,21 +7,18 @@ import (
 	"github.com/bluemir/monosketch/internal/server/backend/auth"
 	"github.com/bluemir/monosketch/internal/server/backend/documents"
 	"github.com/bluemir/monosketch/internal/server/backend/jobs"
-	"github.com/bluemir/monosketch/internal/server/backend/posts"
 	"gorm.io/gorm"
 )
 
 // Config from file
 type Config struct {
 	Auth      auth.Config
-	Posts     posts.Config
 	Jobs      jobs.Config
 	Documents documents.Config
 }
 type Backends struct {
 	Auth      *auth.Manager
 	Events    *pubsub.Hub
-	Posts     *posts.Manager
 	Jobs      *jobs.Manager
 	Documents *documents.Manager
 }
@@ -34,10 +31,6 @@ func Initialize(ctx context.Context, conf *Config, db *gorm.DB) (*Backends, erro
 	// init components
 
 	authManager, err := auth.New(ctx, &conf.Auth, db, events)
-	if err != nil {
-		return nil, err
-	}
-	posts, err := posts.New(ctx, &conf.Posts, db, events)
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +47,6 @@ func Initialize(ctx context.Context, conf *Config, db *gorm.DB) (*Backends, erro
 	return &Backends{
 		Events:    events,
 		Auth:      authManager,
-		Posts:     posts,
 		Jobs:      jobs,
 		Documents: documents,
 	}, nil

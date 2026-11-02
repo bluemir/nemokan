@@ -46,6 +46,7 @@ Kotlin/JS 와 Compose for Web 으로 작성되어 있고, main 소스는 약 16k
 	- 문서 페이지 하나만 상호작용이 많은 페이지로 둔다. 권한에 따라 편집 화면이나 읽기 전용 화면으로 열린다.
 - 빌드는 grim 의 `scripts/makefile.d/wasm.mk` 방식(`GOOS=js GOARCH=wasm`, `wasm_exec.js` 복사)을 따른다.
 - 템플릿에 있는 로그인(webauthn), admin, posts, gRPC 는 건드리지 않는다.
+	- posts 예제는 2026-11-02 에 지웠다. 첫 화면을 편집기 소개로 바꾸면서 쓰는 곳이 없어졌다.
 
 ## Consequences
 

@@ -79,10 +79,6 @@ func (server *Server) routes(app gin.IRouter, noRoute func(...gin.HandlerFunc)) 
 		v1.PUT("/documents/:id/visibility", requireLogin, api(handler.SetDocumentVisibility))
 		v1.DELETE("/documents/:id", requireLogin, api(handler.DeleteDocument))
 
-		v1.POST("/posts", api(handler.CreatePost))
-		v1.GET("/posts", api(handler.FindPost))
-		v1.GET("/posts/stream", sse(handler.StreamPost))
-
 		// WebSocket
 		v1.GET("/ws", handler.Websocket)
 		// Server Sent Event
@@ -106,7 +102,6 @@ func (server *Server) routes(app gin.IRouter, noRoute func(...gin.HandlerFunc)) 
 		app.GET("/users/recover", html("users/recover.html"))
 		app.GET("/users/recover/:token", handler.EnterRecovery, html("users/recover-confirm.html"))
 		app.GET("/users/verify-email/:token", handler.ConfirmEmail, html("users/verify-email.html"))
-		app.GET("/posts", html("posts.html"))
 		app.GET("/admin", html("admin.html"))
 		app.GET("/admin/iam", redirect("/admin/iam/users"))
 		app.GET("/admin/iam/users", html("admin/iam/users.html"))
