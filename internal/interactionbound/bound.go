@@ -51,6 +51,13 @@ func NewScalableBound(shapeID string, shapeBound geo.Rect) *ScalableBound {
 	}
 }
 
+// NewOutlineBound only shows the bound of a shape which cannot be scaled, such as a group.
+func NewOutlineBound(shapeBound geo.Rect) *ScalableBound {
+	bound := NewScalableBound("", shapeBound)
+	bound.points = nil
+	return bound
+}
+
 func (b *ScalableBound) Points() []Point { return b.points }
 func (*ScalableBound) isBound()          {}
 

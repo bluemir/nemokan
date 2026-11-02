@@ -45,7 +45,7 @@ func restoreText(serializable *SerializableText, parentID string) *Text {
 	text := NewText(serializable.Bound, serializable.actualID(), parentID, serializable.IsTextEditable)
 	text.extra = serializable.Extra.restore()
 	text.SetText(serializable.Text)
-	text.versionCode = serializable.VersionCode
+	text.restore(serializable.serializableBase)
 	return text
 }
 
@@ -140,7 +140,7 @@ func (t *Text) IsOverlapped(rect geo.Rect) bool { return t.bound.IsOverlapped(re
 
 func (t *Text) Serializable(isIDIncluded bool) SerializableShape {
 	return &SerializableText{
-		serializableBase: serializableBase{ID: t.id, IsIDTemporary: !isIDIncluded, VersionCode: t.versionCode},
+		serializableBase: t.serializableBase(isIDIncluded),
 		Bound:            t.bound,
 		Text:             t.text,
 		Extra:            serializableTextExtra(t.extra),

@@ -37,14 +37,24 @@ var noStroke = &StraightStrokeStyle{
 	UpRight:     bitmap.HalfTransparent,
 	UpLeft:      bitmap.HalfTransparent,
 	DownRight:   bitmap.HalfTransparent,
+
+	VerticalRight:  bitmap.HalfTransparent,
+	VerticalLeft:   bitmap.HalfTransparent,
+	HorizontalDown: bitmap.HalfTransparent,
+	HorizontalUp:   bitmap.HalfTransparent,
+	Cross:          bitmap.HalfTransparent,
 }
 
 var allStrokeStyles = []*StraightStrokeStyle{
 	noStroke,
-	{ID: "S1", DisplayName: "─", Horizontal: '─', Vertical: '│', DownLeft: '┐', UpRight: '┌', UpLeft: '┘', DownRight: '└'},
-	{ID: "S2", DisplayName: "━", Horizontal: '━', Vertical: '┃', DownLeft: '┓', UpRight: '┏', UpLeft: '┛', DownRight: '┗'},
-	{ID: "S3", DisplayName: "═", Horizontal: '═', Vertical: '║', DownLeft: '╗', UpRight: '╔', UpLeft: '╝', DownRight: '╚'},
-	{ID: "S4", DisplayName: "▢", Horizontal: '─', Vertical: '│', DownLeft: '╮', UpRight: '╭', UpLeft: '╯', DownRight: '╰'},
+	{ID: "S1", DisplayName: "─", Horizontal: '─', Vertical: '│', DownLeft: '┐', UpRight: '┌', UpLeft: '┘', DownRight: '└',
+		VerticalRight: '├', VerticalLeft: '┤', HorizontalDown: '┬', HorizontalUp: '┴', Cross: '┼'},
+	{ID: "S2", DisplayName: "━", Horizontal: '━', Vertical: '┃', DownLeft: '┓', UpRight: '┏', UpLeft: '┛', DownRight: '┗',
+		VerticalRight: '┣', VerticalLeft: '┫', HorizontalDown: '┳', HorizontalUp: '┻', Cross: '╋'},
+	{ID: "S3", DisplayName: "═", Horizontal: '═', Vertical: '║', DownLeft: '╗', UpRight: '╔', UpLeft: '╝', DownRight: '╚',
+		VerticalRight: '╠', VerticalLeft: '╣', HorizontalDown: '╦', HorizontalUp: '╩', Cross: '╬'},
+	{ID: "S4", DisplayName: "▢", Horizontal: '─', Vertical: '│', DownLeft: '╮', UpRight: '╭', UpLeft: '╯', DownRight: '╰',
+		VerticalRight: '├', VerticalLeft: '┤', HorizontalDown: '┬', HorizontalUp: '┴', Cross: '┼'},
 }
 
 // predefinedStrokeStyles are the styles a user can select. S0 and S4 are used internally.

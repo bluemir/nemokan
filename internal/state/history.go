@@ -68,7 +68,7 @@ func (m *Manager) replaceRoot(newRoot *shape.Group, newConnector *shape.ShapeCon
 		m.history.clear()
 	}
 	m.shapeManager.ReplaceRoot(newRoot, newConnector)
-	m.workingParentGroup = m.shapeManager.Root()
+	m.setWorkingParentGroup(m.shapeManager.Root())
 	m.selection.Clear()
 }
 

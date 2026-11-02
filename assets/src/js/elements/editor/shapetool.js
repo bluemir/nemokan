@@ -1,4 +1,5 @@
 import {html} from 'lit-html';
+import {widgetToolTemplate} from "./widgets.js";
 
 // The shape tool panel, the port of the original shapetool2. Go decides what to show
 // (state.ShapeTool), and each change goes back to Go as a one time action.
@@ -154,7 +155,8 @@ function textAlignTemplate(textAlign, send) {
 export function shapeToolTemplate(tool, options, send) {
 	const hasAppearance = tool.rectangle || tool.line;
 	return html`
-		<aside id="shape-tool">
+		<section id="shape-tool">
+			<h2>Properties</h2>
 			${tool.bound ? transformTemplate(tool, send) : ""}
 			${hasAppearance ? html`
 				<fieldset>
@@ -163,8 +165,9 @@ export function shapeToolTemplate(tool, options, send) {
 					${tool.line ? lineTemplate(tool.line, options, send) : ""}
 				</fieldset>
 			` : ""}
+			${tool.widget ? widgetToolTemplate(tool.widget, send) : ""}
 			${tool.textAlign ? textAlignTemplate(tool.textAlign, send) : ""}
-			${!tool.bound && !hasAppearance && !tool.textAlign ? html`<p>Select a shape for updating its properties here</p>` : ""}
-		</aside>
+			${!tool.bound && !hasAppearance && !tool.textAlign ? html`<p>Select a shape to change its properties here.</p>` : ""}
+		</section>
 	`;
 }

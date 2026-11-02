@@ -26,16 +26,17 @@ func newLineConnectHoverCache(m *Manager) *hoverShapeCache {
 	}
 }
 
-// newHoverCache finds the top shape at a point.
+// newHoverCache finds the item of the working group holding the top shape at a point.
 func newHoverCache(m *Manager) *hoverShapeCache {
 	return &hoverShapeCache{
 		pointToShape: map[geo.Point]shape.Shape{},
 		search: func(point geo.Point) shape.Shape {
-			shapes := m.searcher.Shapes(point)
-			if len(shapes) == 0 {
+			// The item of the working group is hovered, as a click selects it.
+			found, ok := m.topWorkingItem(m.searcher.Shapes(point))
+			if !ok {
 				return nil
 			}
-			return shapes[len(shapes)-1]
+			return found
 		},
 	}
 }

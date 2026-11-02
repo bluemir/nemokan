@@ -52,6 +52,34 @@ func (m *Manager) handleOneTimeAction(oneTime action.OneTime) {
 		if selected, ok := m.singleSelectedShape(); ok {
 			m.shapeManager.Execute(shape.ChangeOrder{Shape: selected, OrderType: oneTime.OrderType})
 		}
+	case action.GroupShapes:
+		m.groupSelectedShapes()
+	case action.UngroupShapes:
+		m.ungroupSelectedShapes()
+	case action.SelectShape:
+		if target, ok := m.layerShape(oneTime.ShapeID); ok {
+			m.selectLayer(target)
+		}
+	case action.ToggleShapeSelection:
+		if target, ok := m.layerShape(oneTime.ShapeID); ok {
+			m.toggleLayerSelection(target)
+		}
+	case action.RenameShape:
+		if target, ok := m.layerShape(oneTime.ShapeID); ok {
+			m.shapeManager.Execute(shape.Rename{Target: target, Name: oneTime.Name})
+		}
+	case action.SetShapeHidden:
+		if target, ok := m.layerShape(oneTime.ShapeID); ok {
+			m.setShapeHidden(target, oneTime.IsHidden)
+		}
+	case action.SetShapeLocked:
+		if target, ok := m.layerShape(oneTime.ShapeID); ok {
+			m.setShapeLocked(target, oneTime.IsLocked)
+		}
+	case action.MoveShapeInLayers:
+		m.moveShapeInLayers(oneTime)
+	case action.ChangeWidgetContent:
+		m.setSelectedWidgetContent(oneTime.Content)
 	case action.Copy:
 		m.copySelectedShapes()
 	case action.Cut:
@@ -96,6 +124,10 @@ func (m *Manager) deleteSelectedShapes() {
 }
 
 func (m *Manager) editShape(target shape.Shape) {
+	if widget, ok := target.(*shape.Widget); ok {
+		m.editFirstWidgetField(widget)
+		return
+	}
 	text, ok := target.(*shape.Text)
 	if !ok {
 		return
@@ -131,7 +163,7 @@ func (m *Manager) setTextAlignment(alignment action.TextAlignment) {
 }
 
 func (m *Manager) moveSelectedShapes(offset geo.Point) {
-	m.moveShapes(m.selection.SelectedShapes.Value(), true, func(target shape.Shape) (geo.Point, bool) {
+	m.moveShapes(m.movableSelectedShapes(), true, func(target shape.Shape) (geo.Point, bool) {
 		return target.Bound().Position.Plus(offset), true
 	})
 	m.refreshInteractionBounds()
@@ -143,6 +175,18 @@ func (m *Manager) setSelectedShapeBound(change action.ChangeShapeBound) {
 		return
 	}
 	currentBound := selected.Bound()
+	if group, ok := selected.(*shape.Group); ok {
+		// A group is moved by moving the shapes in it. It cannot be resized.
+		offset := geo.Point{
+			Left: valueOr(change.NewLeft, currentBound.Left()) - currentBound.Left(),
+			Top:  valueOr(change.NewTop, currentBound.Top()) - currentBound.Top(),
+		}
+		m.moveShapes(leafShapes([]shape.Shape{group}), true, func(target shape.Shape) (geo.Point, bool) {
+			return target.Bound().Position.Plus(offset), true
+		})
+		m.refreshInteractionBounds()
+		return
+	}
 	newBound := geo.RectByLTWH(
 		valueOr(change.NewLeft, currentBound.Left()),
 		valueOr(change.NewTop, currentBound.Top()),
@@ -165,6 +209,13 @@ func (m *Manager) changeRectangleExtra(target shape.Shape, change func(extra *sh
 	case *shape.Text:
 		extra := target.Extra()
 		change(&extra.BoundExtra)
+		m.shapeManager.Execute(shape.ChangeExtra{Target: target, NewExtra: extra})
+	case *shape.Widget:
+		if !target.HasBox() {
+			return false
+		}
+		extra := target.Extra()
+		change(&extra)
 		m.shapeManager.Execute(shape.ChangeExtra{Target: target, NewExtra: extra})
 	default:
 		return false

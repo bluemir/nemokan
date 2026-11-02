@@ -4,49 +4,81 @@ package action
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/bluemir/monosketch/internal/cursor"
 	"github.com/bluemir/monosketch/internal/observable"
+	"github.com/bluemir/monosketch/internal/shape"
 )
 
 // Retainable is an action which keeps having effect after it is set, such as adding
-// rectangles by mouse.
-type Retainable int
+// rectangles by mouse. Retainables are compared with ==.
+type Retainable struct {
+	kind retainableKind
+	// widget is the kind of widget to add, for AddWidget.
+	widget shape.WidgetKind
+}
+
+type retainableKind int
 
 const (
-	RetainableIdle Retainable = iota
-	AddRectangle
-	AddText
-	AddLine
+	retainableIdle retainableKind = iota
+	retainableAddRectangle
+	retainableAddText
+	retainableAddLine
+	retainableAddWidget
 )
 
+var (
+	RetainableIdle = Retainable{kind: retainableIdle}
+	AddRectangle   = Retainable{kind: retainableAddRectangle}
+	AddText        = Retainable{kind: retainableAddText}
+	AddLine        = Retainable{kind: retainableAddLine}
+)
+
+// AddWidget adds widgets of kind by mouse. See ADR-0014.
+func AddWidget(kind shape.WidgetKind) Retainable {
+	return Retainable{kind: retainableAddWidget, widget: kind}
+}
+
+// AddingWidget returns the kind of widget the retainable adds, or false if it does not add
+// widgets.
+func (r Retainable) AddingWidget() (shape.WidgetKind, bool) {
+	return r.widget, r.kind == retainableAddWidget
+}
+
 func (r Retainable) Cursor() cursor.Cursor {
-	switch r {
-	case AddRectangle, AddLine:
+	switch r.kind {
+	case retainableAddRectangle, retainableAddLine, retainableAddWidget:
 		return cursor.Crosshair
-	case AddText:
+	case retainableAddText:
 		return cursor.Text
 	default:
 		return cursor.Default
 	}
 }
 
+// widgetPrefix starts the text of AddWidget, such as "widget:button".
+const widgetPrefix = "widget:"
+
 func (r Retainable) MarshalText() ([]byte, error) {
-	switch r {
-	case RetainableIdle:
+	switch r.kind {
+	case retainableIdle:
 		return []byte("idle"), nil
-	case AddRectangle:
+	case retainableAddRectangle:
 		return []byte("addRectangle"), nil
-	case AddText:
+	case retainableAddText:
 		return []byte("addText"), nil
-	case AddLine:
+	case retainableAddLine:
 		return []byte("addLine"), nil
+	case retainableAddWidget:
+		return []byte(widgetPrefix + string(r.widget)), nil
 	}
-	return nil, fmt.Errorf("unknown retainable action: %d", r)
+	return nil, fmt.Errorf("unknown retainable action: %d", r.kind)
 }
 
 func (r *Retainable) UnmarshalText(text []byte) error {
-	switch string(text) {
+	switch value := string(text); value {
 	case "idle":
 		*r = RetainableIdle
 	case "addRectangle":
@@ -56,7 +88,11 @@ func (r *Retainable) UnmarshalText(text []byte) error {
 	case "addLine":
 		*r = AddLine
 	default:
-		return fmt.Errorf("unknown retainable action: %q", text)
+		kind, ok := strings.CutPrefix(value, widgetPrefix)
+		if _, isKnown := shape.NewWidgetContent(shape.WidgetKind(kind)); !ok || !isKnown {
+			return fmt.Errorf("unknown retainable action: %q", text)
+		}
+		*r = AddWidget(shape.WidgetKind(kind))
 	}
 	return nil
 }

@@ -1,6 +1,7 @@
 package shape
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -166,4 +167,68 @@ func TestManager_ReplaceRoot_NestedGroup(t *testing.T) {
 	restored, ok := target.Shape(rectangle.ID())
 	assert.True(t, ok)
 	assert.Equal(t, group.ID(), restored.ParentID())
+}
+
+func TestManager_LayerAttributes(t *testing.T) {
+	target := NewManager()
+	rectangle := NewRectangle(geo.Rect{}, "", "")
+	target.Execute(AddShape{Shape: rectangle})
+
+	version := target.Version.Value()
+	target.Execute(Rename{Target: rectangle, Name: "Header"})
+	target.Execute(SetHidden{Target: rectangle, IsHidden: true})
+	target.Execute(SetLocked{Target: rectangle, IsLocked: true})
+	assert.NotEqual(t, version, target.Version.Value())
+
+	// They are kept in the file, and left out when unset.
+	data, err := json.Marshal(SerializableShapes{rectangle.Serializable(true)})
+	assert.NoError(t, err)
+	for _, field := range []string{`"name":"Header"`, `"isHidden":true`, `"isLocked":true`} {
+		assert.Contains(t, string(data), field)
+	}
+	var restored SerializableShapes
+	assert.NoError(t, json.Unmarshal(data, &restored))
+	shape := RestoreShape(restored[0], "")
+	assert.Equal(t, "Header", shape.Name())
+	assert.True(t, shape.IsHidden())
+	assert.True(t, shape.IsLocked())
+
+	data, err = json.Marshal(SerializableShapes{NewRectangle(geo.Rect{}, "", "").Serializable(true)})
+	assert.NoError(t, err)
+	assert.NotContains(t, string(data), "name")
+	assert.NotContains(t, string(data), "isHidden")
+}
+
+func TestManager_MoveShape(t *testing.T) {
+	target := NewManager()
+	group := NewGroup("", "")
+	inner := NewGroup("", group.ID())
+	first := NewRectangle(geo.Rect{}, "", group.ID())
+	second := NewRectangle(geo.Rect{}, "", inner.ID())
+	third := NewRectangle(geo.Rect{}, "", inner.ID())
+	outside := NewRectangle(geo.Rect{}, "", "")
+	for _, shape := range []Shape{group, inner, first, second, third, outside} {
+		target.Execute(AddShape{Shape: shape})
+	}
+
+	// A group cannot move into its own items.
+	target.Execute(MoveShape{Shape: group, NewParent: inner})
+	assert.Equal(t, []Shape{group, outside}, target.Root().Items())
+
+	// Into another group, to the bottom.
+	version := target.Version.Value()
+	target.Execute(MoveShape{Shape: outside, NewParent: inner})
+	assert.Equal(t, []Shape{outside, second, third}, inner.Items())
+	assert.Equal(t, inner.ID(), outside.ParentID())
+	assert.NotEqual(t, version, target.Version.Value())
+
+	// In the same group, above another item.
+	target.Execute(MoveShape{Shape: outside, NewParent: inner, BelowID: third.ID()})
+	assert.Equal(t, []Shape{second, third, outside}, inner.Items())
+
+	// Leaving one item in group ungroups it.
+	target.Execute(MoveShape{Shape: inner, NewParent: target.Root(), BelowID: group.ID()})
+	assert.Equal(t, []Shape{first, inner}, target.Root().Items())
+	_, ok := target.Shape(group.ID())
+	assert.False(t, ok)
 }

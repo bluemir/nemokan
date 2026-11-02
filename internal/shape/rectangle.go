@@ -25,7 +25,7 @@ func NewRectangleByPoints(startPoint, endPoint geo.Point, id, parentID string) *
 func restoreRectangle(serializable *SerializableRectangle, parentID string) *Rectangle {
 	rectangle := NewRectangle(serializable.Bound, serializable.actualID(), parentID)
 	rectangle.extra = serializable.Extra.restore()
-	rectangle.versionCode = serializable.VersionCode
+	rectangle.restore(serializable.serializableBase)
 	return rectangle
 }
 
@@ -60,7 +60,7 @@ func (r *Rectangle) IsOverlapped(rect geo.Rect) bool { return r.bound.IsOverlapp
 
 func (r *Rectangle) Serializable(isIDIncluded bool) SerializableShape {
 	return &SerializableRectangle{
-		serializableBase: serializableBase{ID: r.id, IsIDTemporary: !isIDIncluded, VersionCode: r.versionCode},
+		serializableBase: r.serializableBase(isIDIncluded),
 		Bound:            r.bound,
 		Extra:            serializableRectangleExtra(r.extra),
 	}

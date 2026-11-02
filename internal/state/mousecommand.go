@@ -57,19 +57,23 @@ func (selectShapeCommand) execute(m *Manager, pointer MousePointer) commandResul
 			m.selection.Clear()
 		}
 		for _, found := range shapes {
-			m.addSelectedShape(found)
+			if item, ok := m.workingItem(found); ok {
+				m.addSelectedShape(item)
+			}
 		}
 		return commandWorking
 	case MouseClick:
-		shapes := m.searcher.Shapes(pointer.Point)
-		if len(shapes) > 0 {
-			top := shapes[len(shapes)-1]
-			if pointer.IsWithShiftKey {
-				m.selection.Toggle(top)
-			} else {
-				m.selection.Clear()
-				m.addSelectedShape(top)
-			}
+		top, ok := m.topWorkingItem(m.searcher.Shapes(pointer.Point))
+		switch {
+		case !ok && !pointer.IsWithShiftKey:
+			// Clicking outside the working group goes back to the root. See ADR-0013.
+			m.setWorkingParentGroup(m.shapeManager.Root())
+		case !ok:
+		case pointer.IsWithShiftKey:
+			m.selection.Toggle(top)
+		default:
+			m.selection.Clear()
+			m.addSelectedShape(top)
 		}
 		return commandDone
 	default:

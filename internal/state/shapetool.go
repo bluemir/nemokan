@@ -19,6 +19,7 @@ type ShapeTool struct {
 	Rectangle *RectangleAppearance `json:"rectangle"`
 	Line      *LineAppearance      `json:"line"`
 	TextAlign *shape.TextAlign     `json:"textAlign"`
+	Widget    *WidgetTool          `json:"widget"`
 }
 
 // StyleSelection is a style that can be turned off while keeping the selected one.
@@ -70,6 +71,12 @@ func (m *Manager) ShapeTool() ShapeTool {
 		}
 	case *shape.Line:
 		tool.Line = newLineAppearance(selected.Extra())
+	case *shape.Widget:
+		tool.IsResizeable = selected.IsResizeable()
+		tool.Widget = newWidgetTool(selected)
+		if selected.HasBox() {
+			tool.Rectangle = newRectangleAppearance(selected.Extra())
+		}
 	}
 
 	if tool.Rectangle == nil && (retainable == action.AddRectangle || retainable == action.AddText) {

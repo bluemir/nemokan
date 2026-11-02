@@ -56,6 +56,10 @@ func (l *quickList[T]) items() []T {
 	return result
 }
 
+func (l *quickList[T]) addFirst(item T) bool {
+	return l.insertAfter(item, l.head)
+}
+
 func (l *quickList[T]) addLast(item T) bool {
 	return l.insertAfter(item, l.tail.previous)
 }

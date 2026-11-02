@@ -35,6 +35,14 @@ type StraightStrokeStyle struct {
 	UpRight     rune
 	UpLeft      rune
 	DownRight   rune
+
+	// The junctions are where a divider meets the border or another divider, such as in a
+	// table. Each is named by the directions it goes to.
+	VerticalRight  rune
+	VerticalLeft   rune
+	HorizontalDown rune
+	HorizontalUp   rune
+	Cross          rune
 }
 
 // StraightStrokeDashPattern is the dash pattern of a straight stroke. Dash is at least 1.

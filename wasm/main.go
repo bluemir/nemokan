@@ -27,6 +27,7 @@ var changeNames = map[state.Change]string{
 	state.ChangeBackup:            "backup",
 	state.ChangeRetainableAction:  "retainableAction",
 	state.ChangeShapeTool:         "shapeTool",
+	state.ChangeLayers:            "layers",
 }
 
 type engine struct {
@@ -88,6 +89,8 @@ func start(this js.Value, args []js.Value) any {
 		"rootId":            editor.rootID,
 		"newDocument":       editor.newDocument,
 		"exportText":        editor.exportText,
+		"exportRows":        editor.exportRows,
+		"layers":            editor.layers,
 		"file":              editor.file,
 		"fileInfo":          editor.fileInfo,
 		"openFile":          editor.openFile(editor.state.OpenFile),
@@ -220,7 +223,8 @@ type boundJSON struct {
 func (e *engine) interactionBounds(args []js.Value) any {
 	bounds := []boundJSON{}
 	for _, bound := range e.state.InteractionBounds() {
-		var points []pointJSON
+		// A group or a locked shape has no points, which is an empty array for JS.
+		points := []pointJSON{}
 		for _, point := range bound.Points() {
 			points = append(points, pointJSON{Left: point.Position().Left, Top: point.Position().Top})
 		}
@@ -253,7 +257,7 @@ func (e *engine) textEditing(args []js.Value) any {
 	if editing == nil {
 		return js.Null()
 	}
-	return stringify(map[string]any{"text": editing.Text, "boundPx": editing.BoundPx})
+	return stringify(map[string]any{"text": editing.Text, "boundPx": editing.BoundPx, "isSingleLine": editing.IsSingleLine})
 }
 
 // shapeTool returns a JSON string of state.ShapeTool.
@@ -346,6 +350,22 @@ func (e *engine) newDocument(args []js.Value) any {
 
 func (e *engine) exportText(args []js.Value) any {
 	return e.state.ExportText()
+}
+
+// layers returns a JSON string of state.Layers. See ADR-0013.
+func (e *engine) layers(args []js.Value) any {
+	return stringify(e.state.Layers())
+}
+
+// exportRows returns the rows of the exported shapes, as the rows of board. It is empty if
+// there is nothing to export.
+func (e *engine) exportRows(args []js.Value) any {
+	exported := e.state.ExportRows()
+	rows := make([]any, len(exported))
+	for i, row := range exported {
+		rows[i] = row
+	}
+	return rows
 }
 
 // file takes (name, offsetLeft, offsetTop) and returns the JSON string of the document file.

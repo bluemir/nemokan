@@ -58,7 +58,7 @@ func (m *Manager) isAllowed(oneTime action.OneTime) bool {
 		return true
 	}
 	switch oneTime.(type) {
-	case action.SelectAllShapes, action.DeselectShapes, action.Copy, action.CopyText:
+	case action.SelectAllShapes, action.DeselectShapes, action.SelectShape, action.ToggleShapeSelection, action.Copy, action.CopyText:
 		return true
 	}
 	return false

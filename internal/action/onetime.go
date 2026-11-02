@@ -95,6 +95,51 @@ type ReorderShape struct {
 	OrderType shape.OrderType `json:"orderType"`
 }
 
+// GroupShapes groups the selected shapes. UngroupShapes ungroups the selected groups.
+type GroupShapes struct{}
+type UngroupShapes struct{}
+
+// SelectShape selects only the shape with ShapeID, from the layers. It also selects a locked
+// shape, or one inside a group. See ADR-0013.
+type SelectShape struct {
+	ShapeID string `json:"shapeId"`
+}
+
+// ToggleShapeSelection adds the shape with ShapeID to the selection, or removes it.
+type ToggleShapeSelection struct {
+	ShapeID string `json:"shapeId"`
+}
+
+// RenameShape sets the name in the layers. An empty name shows the default name.
+type RenameShape struct {
+	ShapeID string `json:"shapeId"`
+	Name    string `json:"name"`
+}
+
+type SetShapeHidden struct {
+	ShapeID  string `json:"shapeId"`
+	IsHidden bool   `json:"isHidden"`
+}
+
+type SetShapeLocked struct {
+	ShapeID  string `json:"shapeId"`
+	IsLocked bool   `json:"isLocked"`
+}
+
+// MoveShapeInLayers moves a shape into the group with ParentID, right above the item with
+// BelowID, or to the bottom if BelowID is empty.
+type MoveShapeInLayers struct {
+	ShapeID  string `json:"shapeId"`
+	ParentID string `json:"parentId"`
+	BelowID  string `json:"belowId"`
+}
+
+// ChangeWidgetContent replaces the content of the selected widget. Content is the JSON of
+// the content of its kind. See ADR-0014.
+type ChangeWidgetContent struct {
+	Content json.RawMessage `json:"content"`
+}
+
 type Copy struct{}
 type Cut struct{}
 type Duplicate struct{}
@@ -121,6 +166,15 @@ func (ChangeLineStrokeCornerExtra) isOneTime()       {}
 func (ChangeLineStartAnchorExtra) isOneTime()        {}
 func (ChangeLineEndAnchorExtra) isOneTime()          {}
 func (ReorderShape) isOneTime()                      {}
+func (GroupShapes) isOneTime()                       {}
+func (UngroupShapes) isOneTime()                     {}
+func (SelectShape) isOneTime()                       {}
+func (ToggleShapeSelection) isOneTime()              {}
+func (RenameShape) isOneTime()                       {}
+func (SetShapeHidden) isOneTime()                    {}
+func (SetShapeLocked) isOneTime()                    {}
+func (MoveShapeInLayers) isOneTime()                 {}
+func (ChangeWidgetContent) isOneTime()               {}
 func (Copy) isOneTime()                              {}
 func (Cut) isOneTime()                               {}
 func (Duplicate) isOneTime()                         {}
@@ -147,6 +201,15 @@ var oneTimeParsers = map[string]func(data []byte) (OneTime, error){
 	"changeLineStartAnchorExtra":        parse[ChangeLineStartAnchorExtra],
 	"changeLineEndAnchorExtra":          parse[ChangeLineEndAnchorExtra],
 	"reorderShape":                      parse[ReorderShape],
+	"groupShapes":                       parse[GroupShapes],
+	"ungroupShapes":                     parse[UngroupShapes],
+	"selectShape":                       parse[SelectShape],
+	"toggleShapeSelection":              parse[ToggleShapeSelection],
+	"renameShape":                       parse[RenameShape],
+	"setShapeHidden":                    parse[SetShapeHidden],
+	"setShapeLocked":                    parse[SetShapeLocked],
+	"moveShapeInLayers":                 parse[MoveShapeInLayers],
+	"changeWidgetContent":               parse[ChangeWidgetContent],
 	"copy":                              parse[Copy],
 	"cut":                               parse[Cut],
 	"duplicate":                         parse[Duplicate],

@@ -29,6 +29,9 @@ export const shortcuts = [
 	{codes: ["KeyD"], command: true, action: {type: "duplicate"}, preventDefault: true, label: "Duplicate"},
 	{codes: ["KeyC"], command: true, shift: true, action: {type: "copyText"}, preventDefault: true, label: "Copy as text"},
 
+	{codes: ["KeyG"], command: true, shift: false, action: {type: "groupShapes"}, preventDefault: true, label: "Group"},
+	{codes: ["KeyG"], command: true, shift: true, action: {type: "ungroupShapes"}, preventDefault: true, label: "Ungroup"},
+
 	{codes: ["KeyZ"], command: true, shift: false, action: {type: "undo"}, label: "Undo"},
 	{codes: ["KeyZ"], command: true, shift: true, action: {type: "redo"}, label: "Redo"},
 ];

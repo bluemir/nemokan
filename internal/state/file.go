@@ -8,26 +8,69 @@ import (
 	"github.com/bluemir/monosketch/internal/shape"
 )
 
-// SelectedShapesText returns the selected shapes drawn as text. It returns false if no shape
-// is selected.
+// SelectedShapesText returns the selected shapes drawn as text, without the hidden ones. It
+// returns false if no shape is selected or all of them are hidden.
 func (m *Manager) SelectedShapesText() (string, bool) {
-	selected := m.selectedShapesInOrder()
+	selected := m.visibleLeafShapes(slices.DeleteFunc(m.selectedShapesInOrder(), m.isHiddenInGroups))
 	if len(selected) == 0 {
 		return "", false
 	}
 	return m.exportText(selected), true
 }
 
-// ExportText returns the selected shapes drawn as text, or all shapes of the working group if
-// none is selected.
+// ExportText returns the shapes of exportingShapes drawn as text.
 func (m *Manager) ExportText() string {
-	if selected := m.selectedShapesInOrder(); len(selected) > 0 {
-		return m.exportText(selected)
-	}
-	if m.workingParentGroup.ItemCount() == 0 {
+	shapes := m.exportingShapes()
+	if len(shapes) == 0 {
 		return ""
 	}
-	return m.exportText([]shape.Shape{m.workingParentGroup})
+	return m.exportText(shapes)
+}
+
+// ExportRows returns the same shapes as ExportText, one string for each row and one char for
+// each cell, as BoardView.Rows. It is for drawing them as an image.
+func (m *Manager) ExportRows() []string {
+	shapes := m.exportingShapes()
+	if len(shapes) == 0 {
+		return nil
+	}
+	exportingBoard, window := m.exportBoard(shapes)
+	rows := make([]string, 0, window.Height())
+	chars := make([]rune, window.Width())
+	for row := window.Top(); row <= window.Bottom(); row++ {
+		for column := window.Left(); column <= window.Right(); column++ {
+			chars[column-window.Left()] = viewChar(exportingBoard.Get(column, row), exportingBoard.Get(column+1, row))
+		}
+		rows = append(rows, string(chars))
+	}
+	return rows
+}
+
+// exportingShapes returns the shapes to export in the drawing order: the selected ones, or
+// all of the document if none is selected. Groups are replaced by the shapes in them, and
+// hidden shapes are left out (ADR-0013). It returns nil if there is nothing to export.
+func (m *Manager) exportingShapes() []shape.Shape {
+	if selected := m.selectedShapesInOrder(); len(selected) > 0 {
+		return m.visibleLeafShapes(slices.DeleteFunc(selected, m.isHiddenInGroups))
+	}
+	return m.visibleLeafShapes(m.shapeManager.Root().Items())
+}
+
+// visibleLeafShapes returns shapes with each group replaced by the shapes in it, leaving out
+// the hidden ones.
+func (m *Manager) visibleLeafShapes(shapes []shape.Shape) []shape.Shape {
+	var result []shape.Shape
+	for _, target := range shapes {
+		if target.IsHidden() {
+			continue
+		}
+		if group, ok := target.(*shape.Group); ok {
+			result = append(result, m.visibleLeafShapes(group.Items())...)
+			continue
+		}
+		result = append(result, target)
+	}
+	return result
 }
 
 // selectedShapesInOrder returns the selected shapes in the drawing order.
@@ -44,6 +87,12 @@ func (m *Manager) selectedShapesInOrder() []shape.Shape {
 
 // exportText draws shapes onto a new board fitting them, without highlights.
 func (m *Manager) exportText(shapes []shape.Shape) string {
+	exportingBoard, window := m.exportBoard(shapes)
+	return exportingBoard.StringInBound(window)
+}
+
+// exportBoard draws shapes onto a new board, and returns it with the bound fitting them.
+func (m *Manager) exportBoard(shapes []shape.Shape) (*board.Board, geo.Rect) {
 	window := shapes[0].Bound()
 	for _, target := range shapes {
 		bound := target.Bound()
@@ -55,15 +104,12 @@ func (m *Manager) exportText(shapes []shape.Shape) string {
 	exportingBoard := board.New()
 	exportingBoard.ClearAndSetWindow(window)
 	m.drawShapesOnto(exportingBoard, shapes)
-	return exportingBoard.StringInBound(window)
+	return exportingBoard, window
 }
 
+// drawShapesOnto draws shapes, which are not groups, onto target.
 func (m *Manager) drawShapesOnto(target *board.Board, shapes []shape.Shape) {
 	for _, item := range shapes {
-		if group, ok := item.(*shape.Group); ok {
-			m.drawShapesOnto(target, group.Items())
-			continue
-		}
 		if drawn := m.bitmapManager.Bitmap(item); drawn != nil {
 			target.Fill(item.Bound().Position, drawn, board.HighlightNone)
 		}

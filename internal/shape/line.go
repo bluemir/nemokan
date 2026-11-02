@@ -83,7 +83,7 @@ func restoreLine(serializable *SerializableLine, parentID string) *Line {
 	}
 	line.edges = createEdges(line.jointPoints)
 	line.extra = serializable.Extra.restore()
-	line.versionCode = serializable.VersionCode
+	line.restore(serializable.serializableBase)
 	return line
 }
 
@@ -111,7 +111,7 @@ func (l *Line) Bound() geo.Rect {
 
 func (l *Line) Serializable(isIDIncluded bool) SerializableShape {
 	return &SerializableLine{
-		serializableBase: serializableBase{ID: l.id, IsIDTemporary: !isIDIncluded, VersionCode: l.versionCode},
+		serializableBase: l.serializableBase(isIDIncluded),
 		StartPoint:       l.startPoint,
 		EndPoint:         l.endPoint,
 		JointPoints:      l.jointPoints,

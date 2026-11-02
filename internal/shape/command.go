@@ -281,3 +281,104 @@ func (c ChangeOrder) execute(manager *Manager, parent *Group) {
 	}
 	parent.changeOrder(c.Shape, actions[c.OrderType])
 }
+
+// Rename sets the name shown in the layers. An empty name shows the default name.
+type Rename struct {
+	Target Shape
+	Name   string
+}
+
+func (c Rename) affectedParent(manager *Manager) *Group {
+	return manager.group(c.Target.ParentID())
+}
+
+func (c Rename) execute(manager *Manager, parent *Group) {
+	updateParentIfChanged(parent, c.Target, func() { c.Target.setName(c.Name) })
+}
+
+// SetHidden hides or shows a shape. A hidden shape is not drawn, exported or found by the
+// mouse. See ADR-0013.
+type SetHidden struct {
+	Target   Shape
+	IsHidden bool
+}
+
+func (c SetHidden) affectedParent(manager *Manager) *Group {
+	return manager.group(c.Target.ParentID())
+}
+
+func (c SetHidden) execute(manager *Manager, parent *Group) {
+	updateParentIfChanged(parent, c.Target, func() { c.Target.setHidden(c.IsHidden) })
+}
+
+// SetLocked locks or unlocks a shape. A locked shape cannot be selected or changed on the
+// canvas, but can be in the layers. See ADR-0013.
+type SetLocked struct {
+	Target   Shape
+	IsLocked bool
+}
+
+func (c SetLocked) affectedParent(manager *Manager) *Group {
+	return manager.group(c.Target.ParentID())
+}
+
+func (c SetLocked) execute(manager *Manager, parent *Group) {
+	updateParentIfChanged(parent, c.Target, func() { c.Target.setLocked(c.IsLocked) })
+}
+
+// MoveShape moves Shape into NewParent, right above the item with BelowID, or to the bottom
+// if BelowID is empty. A shape cannot move into itself or its own items. The old group is
+// ungrouped or removed if it is left with one item or none, as RemoveShape does.
+type MoveShape struct {
+	Shape     Shape
+	NewParent *Group
+	BelowID   string
+}
+
+func (c MoveShape) affectedParent(manager *Manager) *Group {
+	if c.BelowID == c.Shape.ID() {
+		return nil
+	}
+	if c.BelowID != "" {
+		if _, ok := c.NewParent.shapes.get(c.BelowID); !ok {
+			return nil
+		}
+	}
+	for group := c.NewParent; group != nil; group = manager.group(group.ParentID()) {
+		if group.ID() == c.Shape.ID() {
+			return nil
+		}
+		if group.ParentID() == "" {
+			break
+		}
+	}
+	return manager.group(c.Shape.ParentID())
+}
+
+func (c MoveShape) execute(manager *Manager, oldParent *Group) {
+	oldParent.remove(c.Shape)
+	c.Shape.setParentID("")
+	c.NewParent.update(func() bool {
+		c.Shape.setParentID(c.NewParent.id)
+		if c.BelowID == "" {
+			return c.NewParent.shapes.addFirst(c.Shape)
+		}
+		return c.NewParent.shapes.addAfter(c.Shape, c.BelowID)
+	})
+	if oldParent != c.NewParent {
+		// The new parent is not the affected parent, so its ancestors are updated here.
+		for _, ancestor := range manager.ancestors(c.NewParent) {
+			ancestor.update(func() bool { return true })
+		}
+	}
+
+	if oldParent == manager.root || oldParent == c.NewParent {
+		return
+	}
+	switch oldParent.ItemCount() {
+	case 1:
+		manager.Execute(Ungroup{Group: oldParent})
+	case 0:
+		manager.Execute(RemoveShape{Shape: oldParent})
+	}
+}

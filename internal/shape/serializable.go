@@ -22,6 +22,12 @@ type serializableBase struct {
 	// is assigned when the shape is restored.
 	IsIDTemporary bool `json:"isIdTemporary,omitempty"`
 	VersionCode   int  `json:"versionCode"`
+
+	// Name, IsHidden and IsLocked are set in the layers. They are left out when unset, so
+	// files without them are still read. See ADR-0013.
+	Name     string `json:"name,omitempty"`
+	IsHidden bool   `json:"isHidden,omitempty"`
+	IsLocked bool   `json:"isLocked,omitempty"`
 }
 
 func (b serializableBase) OriginalID() string { return b.ID }
@@ -56,6 +62,15 @@ type SerializableLine struct {
 	WasMovingEdge bool                  `json:"wasMovingEdge"`
 }
 
+// SerializableWidget keeps the content as the JSON of its kind. See ADR-0014.
+type SerializableWidget struct {
+	serializableBase
+	Bound   geo.Rect                   `json:"bound"`
+	Kind    WidgetKind                 `json:"kind"`
+	Content json.RawMessage            `json:"content"`
+	Extra   SerializableRectangleExtra `json:"extra"`
+}
+
 type SerializableGroup struct {
 	serializableBase
 	Shapes SerializableShapes `json:"shapes"`
@@ -65,6 +80,7 @@ func (*SerializableRectangle) shapeType() string { return "rectangle" }
 func (*SerializableText) shapeType() string      { return "text" }
 func (*SerializableLine) shapeType() string      { return "line" }
 func (*SerializableGroup) shapeType() string     { return "group" }
+func (*SerializableWidget) shapeType() string    { return "widget" }
 
 // SerializableShapes adds "type" to each shape in JSON.
 type SerializableShapes []SerializableShape
@@ -128,11 +144,19 @@ func unmarshalSerializableShape(data []byte) (SerializableShape, error) {
 		shape = &SerializableLine{}
 	case "group":
 		shape = &SerializableGroup{}
+	case "widget":
+		shape = &SerializableWidget{}
 	default:
 		return nil, fmt.Errorf("unknown shape type: %q", header.Type)
 	}
 	if err := json.Unmarshal(data, shape); err != nil {
 		return nil, err
+	}
+	if widget, ok := shape.(*SerializableWidget); ok {
+		// An unknown kind or a broken content cannot be restored.
+		if _, err := ParseWidgetContent(widget.Kind, widget.Content); err != nil {
+			return nil, err
+		}
 	}
 	return shape, nil
 }

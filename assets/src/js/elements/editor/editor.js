@@ -2,8 +2,11 @@ import {html, render} from 'lit-html';
 import {findShortcut, hasCommandKey, keyLabel, shortcuts} from "./shortcuts.js";
 import {defaultName, findDocumentByServerId, getDocument, hasUnsyncedChanges, listDocuments, removeDocument, saveBackup, updateDocument} from "./storage.js";
 import {createServerDocument, getServerDocument, isLoggedIn, setServerDocumentVisibility, updateServerDocument} from "./server.js";
-import {openFile, saveFile} from "./files.js";
+import {download, openFile, saveFile} from "./files.js";
+import {markdown, png, svg} from "./export.js";
 import {shapeToolTemplate} from "./shapetool.js";
+import {layersTemplate} from "./layers.js";
+import {findWidget, retainableOf, widgets} from "./widgets.js";
 
 // The Go engine does the editing. This element forwards events to it and draws what it
 // reads on the next frame. Documents, files and settings are handled here. See ADR-0001,
@@ -17,6 +20,8 @@ const maxFontSize = 25;
 const fontSizeKey = "monosketch.fontSize";
 const shapeToolHiddenKey = "monosketch.shapeToolHidden";
 const backupDelayMillis = 300;
+// exportStatusMillis is how long the result of an export is shown.
+const exportStatusMillis = 2000;
 // syncDelayMillis is how long after the last change a server document is saved. See ADR-0011.
 const syncDelayMillis = 2000;
 const syncRetryMillis = 10000;
@@ -145,10 +150,16 @@ class Editor extends HTMLElement {
 	// scrollMode is kept only for this page, as the original.
 	#scrollMode = scrollModes[0];
 
+	// pointerCell is the board cell under the mouse, shown in the status bar.
+	#pointerCell = null;
+
 	#interactionBounds = [];
 	#selectionBound = null;
 	#textEditing = null;
 	#shapeTool = {};
+	#layers = {items: [], workingGroupId: ""};
+	// renamingLayerId is the layer being renamed in place.
+	#renamingLayerId = null;
 	#styleOptions = {fill: [], stroke: [], head: []};
 	#isShapeToolHidden = readShapeToolHidden();
 	#theme = readTheme();
@@ -156,6 +167,9 @@ class Editor extends HTMLElement {
 	#documentName = defaultName;
 	#documents = [];
 	#exportedText = "";
+	// exportStatus tells how the last export went, next to the export buttons.
+	#exportStatus = "";
+	#exportStatusTimer;
 	// openingFile is the file waiting for the user to choose how to open it.
 	#openingFile = null;
 	#removingDocument = null;
@@ -202,17 +216,29 @@ class Editor extends HTMLElement {
 					--grid-line: #d9d9d9;
 					--grid-line-zero: #BBBBBB;
 
+					/* The look of the page around the canvas follows Mockdown. */
+					--border: #E5E5E5;
+					--muted: #737373;
+					--hover: rgb(0 0 0 / 5%);
+					--accent: #2563EB;
+					--on-accent: #FFFFFF;
+
 					color-scheme: light;
 					display: grid;
-					grid-template: minmax(0, 1fr) / minmax(0, 1fr) auto;
-					position: relative;
+					grid-template-columns: 12rem minmax(0, 1fr) auto;
+					grid-template-rows: minmax(0, 1fr) auto;
+					grid-template-areas: "tools board panel" "tools status panel";
 					overflow: hidden;
 					background: var(--background);
 					color: var(--shape);
-					font-family: system-ui, sans-serif;
+					font: 0.75rem ${fontFamily};
 				}
 				:host([theme="dark"]) {
 					color-scheme: dark;
+					--border: rgb(255 255 255 / 10%);
+					--muted: #A3A3A3;
+					--hover: rgb(255 255 255 / 6%);
+					--accent: #3B82F6;
 					--background: #121212;
 					--shape: #F0F0F0;
 					--shape-selected: #FFD82F;
@@ -226,10 +252,44 @@ class Editor extends HTMLElement {
 					--grid-line: #282828;
 					--grid-line-zero: #323232;
 				}
-				canvas {
-					display: block;
-					width: 100%;
-					height: 100%;
+				button, input, select, kbd {
+					font: inherit;
+					color: inherit;
+				}
+				button {
+					padding: 0.25rem 0.5rem;
+					border: 1px solid transparent;
+					background: none;
+					cursor: pointer;
+				}
+				button:hover:not(:disabled) {
+					background: var(--hover);
+				}
+				button:disabled {
+					opacity: 0.3;
+					cursor: default;
+				}
+				button[aria-pressed="true"], button.primary, button:is([aria-pressed="true"], .primary):hover {
+					background: var(--accent);
+					color: var(--on-accent);
+				}
+				input, select {
+					border: 1px solid var(--border);
+					background: var(--background);
+				}
+				dialog, [popover] {
+					border: 1px solid var(--border);
+					background: var(--background);
+					color: var(--shape);
+				}
+				h2, legend {
+					margin: 0;
+					padding: 0;
+					color: var(--muted);
+					font-size: 0.625rem;
+					font-weight: bold;
+					letter-spacing: 0.08em;
+					text-transform: uppercase;
 				}
 				menu {
 					display: flex;
@@ -238,37 +298,232 @@ class Editor extends HTMLElement {
 					padding: 0;
 					list-style: none;
 				}
-				#toolbar {
-					position: absolute;
-					top: calc(${axisHeightPx}px + 0.5rem);
-					left: calc(${axisWidthPx}px + 0.5rem);
+				main {
+					grid-area: board;
+					position: relative;
 				}
-				[popover] menu {
+				canvas {
+					display: block;
+					width: 100%;
+					height: 100%;
+				}
+				#tools {
+					grid-area: tools;
+					display: flex;
 					flex-direction: column;
+					gap: 1rem;
+					padding: 0.5rem;
+					border-right: 1px solid var(--border);
+					overflow-y: auto;
+				}
+				#tools menu, [popover] menu {
+					flex-direction: column;
+					gap: 0.125rem;
+				}
+				#tools h2 {
+					padding: 0 0.5rem 0.25rem;
+				}
+				#tools menu button, [popover] menu button {
+					display: flex;
+					align-items: center;
+					gap: 0.5rem;
+					width: 100%;
+					text-align: left;
+				}
+				#tools kbd {
+					margin-left: auto;
+					opacity: 0.5;
+				}
+				#tools .controls {
+					flex-direction: row;
+					margin-top: auto;
+				}
+				#tools .export {
+					display: flex;
+					flex-direction: column;
+					gap: 0.25rem;
+				}
+				#tools .export menu {
+					flex-direction: row;
+				}
+				#tools .export menu li {
+					flex: 1;
+				}
+				#tools .export menu button {
+					justify-content: center;
+					border-color: var(--border);
+				}
+				#tools .export output {
+					min-height: 1lh;
+					color: var(--muted);
+					text-align: center;
+				}
+				#tools .controls button {
+					width: auto;
 				}
 				[popovertarget="document-menu"] {
+					display: flex;
+					width: 100%;
+					font-weight: bold;
+					text-align: left;
 					anchor-name: --document-menu;
+				}
+				[popovertarget="document-menu"] span {
+					flex: 1;
+					overflow: hidden;
+					text-overflow: ellipsis;
 				}
 				#document-menu {
 					position-anchor: --document-menu;
 					inset: auto;
 					top: anchor(bottom);
 					left: anchor(left);
+					min-width: 16rem;
 					margin: 0.25rem 0 0;
+					padding: 0.25rem;
+				}
+				#document-menu li {
+					display: flex;
+					align-items: center;
+					gap: 0.25rem;
+				}
+				#document-menu li > :is(label, span, a) {
+					padding: 0.25rem 0.5rem;
+				}
+				#document-menu li > button:not(:first-child) {
+					width: auto;
+				}
+				#document-menu hr {
+					border: none;
+					border-top: 1px solid var(--border);
+				}
+				#status {
+					grid-area: status;
+					display: flex;
+					align-items: center;
+					gap: 1rem;
+					padding: 0.25rem 1rem;
+					border-top: 1px solid var(--border);
+					color: var(--muted);
+				}
+				#status .tool {
+					padding: 0.125rem 0.5rem;
+					background: var(--accent);
+					color: var(--on-accent);
+					font-size: 0.625rem;
+					font-weight: bold;
+					letter-spacing: 0.08em;
+					text-transform: uppercase;
+				}
+				#status output {
+					margin-left: auto;
+				}
+				#panel {
+					grid-area: panel;
+					display: flex;
+					flex-direction: column;
+					width: 15rem;
+					border-left: 1px solid var(--border);
+				}
+				#panel h2 {
+					padding: 0.5rem 0.75rem;
+					border-bottom: 1px solid var(--border);
+				}
+				#layers {
+					flex: none;
+					max-height: 40%;
+					overflow-y: auto;
+					border-bottom: 1px solid var(--border);
+				}
+				#layers ul {
+					margin: 0;
+					padding: 0;
+					list-style: none;
+				}
+				#layers > p {
+					margin: 0.75rem;
+					color: var(--muted);
+				}
+				.layer {
+					display: flex;
+					align-items: center;
+					gap: 0.375rem;
+					padding: 0.125rem 0.25rem 0.125rem 0.5rem;
+					border: 1px solid transparent;
+					cursor: default;
+				}
+				.layer:hover {
+					background: var(--hover);
+				}
+				.layer[aria-selected="true"] {
+					background: color-mix(in srgb, var(--accent) 15%, transparent);
+				}
+				.layer[data-working] {
+					box-shadow: inset 2px 0 var(--accent);
+				}
+				.layer[data-hidden] > :is(svg, span) {
+					opacity: 0.4;
+				}
+				.layer span, .layer input {
+					flex: 1;
+					min-width: 0;
+					overflow: hidden;
+					text-overflow: ellipsis;
+					white-space: nowrap;
+				}
+				.layer .default-name {
+					color: var(--muted);
+				}
+				.layer button {
+					padding: 0.125rem;
+					color: var(--muted);
+				}
+				.layer button[aria-pressed="true"] {
+					background: none;
+					color: var(--shape);
+				}
+				.layer.drop-above {
+					border-top-color: var(--accent);
+				}
+				.layer.drop-below {
+					border-bottom-color: var(--accent);
+				}
+				.layer.drop-into {
+					border-color: var(--accent);
 				}
 				#shape-tool {
-					width: 15rem;
+					flex: 1;
 					overflow-y: auto;
-					border-left: 1px solid var(--selection-area-stroke);
-					font-size: 0.75rem;
+				}
+				.widget-icon {
+					flex: none;
+					width: 3ch;
+					font-style: normal;
+					white-space: pre;
+				}
+				fieldset.widget label {
+					display: grid;
+					gap: 0.125rem;
+					margin-top: 0.5rem;
+				}
+				fieldset.widget label.check {
+					display: flex;
+					align-items: center;
+					gap: 0.5rem;
+				}
+				fieldset.widget textarea {
+					position: static;
+					outline: none;
+					border: 1px solid var(--border);
+					font: inherit;
+					line-height: inherit;
+					field-sizing: fixed;
 				}
 				fieldset {
+					margin: 0;
+					padding: 0.75rem;
 					border: none;
-					border-bottom: 1px solid var(--selection-area-stroke);
-				}
-				legend {
-					padding: 0;
-					font-weight: bold;
+					border-bottom: 1px solid var(--border);
 				}
 				#shape-tool p {
 					margin: 0.5rem 0 0.25rem;
@@ -282,6 +537,7 @@ class Editor extends HTMLElement {
 				}
 				.styles button {
 					min-width: 2em;
+					border-color: var(--border);
 				}
 				.numbers {
 					display: grid;
@@ -298,9 +554,7 @@ class Editor extends HTMLElement {
 				}
 				button svg {
 					display: block;
-				}
-				button[aria-pressed="true"] {
-					outline: 2px solid var(--shape-selected);
+					flex: none;
 				}
 				textarea {
 					position: absolute;
@@ -324,45 +578,101 @@ class Editor extends HTMLElement {
 					overflow: auto;
 				}
 			</style>
-			<canvas
-				@mousedown=${event => this.#mouseDown(event)}
-				@mouseup=${event => this.#mouse("mouseUp", event)}
-				@mousemove=${event => this.#mouseMove(event)}
-				@wheel=${event => this.#wheel(event)}
-			></canvas>
-			<menu id="toolbar">
-				<li><button popovertarget="document-menu" title="Document">${this.#documentName} ▾</button></li>
-				${retainableTools.filter(tool => !this.#isViewOnly || tool.retainable === "idle").map(tool => html`
-					<li><button
-						aria-pressed=${tool.retainable === retainable}
-						aria-label=${tool.label}
-						title="${tool.label} (${tool.key})"
-						@click=${() => this.#engine.setRetainable(tool.retainable)}
-					><svg width="21" height="21" viewBox="0 0 24 24" fill="currentColor"><path d=${tool.path}/></svg></button></li>
-				`)}
-				${this.#isViewOnly ? "" : historyTools.map(tool => html`
-					<li><button aria-label=${tool.label} title=${tool.label} @click=${() => this.#action({type: tool.type})}>
-						<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d=${tool.path}/></svg>
+			<aside id="tools">
+				<button popovertarget="document-menu" title="Document"><span>${this.#documentName}</span>▾</button>
+				<section>
+					<h2>Basics</h2>
+					<menu>
+						${this.#retainableTools.map(tool => html`
+							<li><button aria-pressed=${tool.retainable === retainable} @click=${() => this.#engine.setRetainable(tool.retainable)}>
+								<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d=${tool.path}/></svg>
+								${tool.label}<kbd>${tool.key}</kbd>
+							</button></li>
+						`)}
+					</menu>
+				</section>
+				${this.#isViewOnly ? "" : html`
+					<section>
+						<h2>UI Elements</h2>
+						<menu>
+							${widgets.map(widget => html`
+								<li><button aria-pressed=${retainableOf(widget.kind) === retainable} @click=${() => this.#engine.setRetainable(retainableOf(widget.kind))}>
+									<i class="widget-icon">${widget.icon}</i>${widget.label}
+								</button></li>
+							`)}
+						</menu>
+					</section>
+				`}
+				<menu class="controls">
+					${this.#isViewOnly ? "" : historyTools.map(tool => html`
+						<li><button aria-label=${tool.label} title=${tool.label} @click=${() => this.#action({type: tool.type})}>
+							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d=${tool.path}/></svg>
+						</button></li>
+					`)}
+					<li><button aria-label=${this.#scrollMode.label} title="${this.#scrollMode.label} (Shift swaps a direction)" @click=${() => this.#nextScrollMode()}>
+						<svg width="16" height="16" viewBox="0 0 40 40" fill="currentColor"><path d=${this.#scrollMode.path}/></svg>
 					</button></li>
-				`)}
-				${this.#serverId ? html`<li><output title="Server">${this.#isViewOnly ? "Read only. Make a copy to edit." : this.#syncStatus}</output></li>` : ""}
-				<li><button aria-label=${this.#scrollMode.label} title="${this.#scrollMode.label} (Shift swaps a direction)" @click=${() => this.#nextScrollMode()}>
-					<svg width="21" height="21" viewBox="0 0 40 40" fill="currentColor"><path d=${this.#scrollMode.path}/></svg>
-				</button></li>
-			</menu>
-			${this.#isShapeToolHidden || this.#isViewOnly ? "" : shapeToolTemplate(this.#shapeTool, this.#styleOptions, action => this.#action(action))}
+				</menu>
+				<section class="export" title="The selected shapes, or all shapes if none is selected">
+					<button class="primary" @click=${() => this.#copyMarkdown()}>Copy Markdown</button>
+					<menu>
+						<li><button @click=${() => this.#downloadSvg()}>SVG</button></li>
+						<li><button @click=${() => this.#downloadPng()}>PNG</button></li>
+					</menu>
+					<output>${this.#exportStatus}</output>
+				</section>
+			</aside>
+			<main>
+				<canvas
+					@mousedown=${event => this.#mouseDown(event)}
+					@mouseup=${event => this.#mouse("mouseUp", event)}
+					@mousemove=${event => this.#mouseMove(event)}
+					@mouseleave=${() => this.#setPointerCell(null)}
+					@wheel=${event => this.#wheel(event)}
+				></canvas>
+				${this.#textEditing ? html`
+					<textarea
+						style="left: ${axisWidthPx + this.#textEditing.boundPx.left}px; top: ${axisHeightPx + this.#textEditing.boundPx.top}px; width: ${this.#textEditing.boundPx.width}px; min-height: ${this.#textEditing.boundPx.height}px;"
+						.value=${this.#textEditing.text}
+						@input=${event => this.#engine.updateEditingText(event.target.value)}
+						@keydown=${event => this.#textKeyDown(event)}
+						@blur=${() => this.#engine.finishTextEditing()}
+					></textarea>
+				` : ""}
+			</main>
+			<footer id="status">
+				<span class="tool">${this.#retainableLabel(retainable)}</span>
+				<span>${this.#pointerCell ? `Row ${this.#pointerCell.row}, Col ${this.#pointerCell.column}` : ""}</span>
+				${this.#serverId ? html`<output title="Server">${this.#isViewOnly ? "Read only. Make a copy to edit." : this.#syncStatus}</output>` : ""}
+			</footer>
+			${this.#isShapeToolHidden || this.#isViewOnly ? "" : html`
+				<aside id="panel">
+					${layersTemplate(this.#layers, {
+						send: action => this.#action(action),
+						renamingId: this.#renamingLayerId,
+						startRename: id => this.#startRenameLayer(id),
+						finishRename: action => this.#finishRenameLayer(action),
+					})}
+					${shapeToolTemplate(this.#shapeTool, this.#styleOptions, action => this.#action(action))}
+				</aside>
+			`}
 			${this.#documentMenuTemplate()}
 			${this.#dialogsTemplate()}
-			${this.#textEditing ? html`
-				<textarea
-					style="left: ${axisWidthPx + this.#textEditing.boundPx.left}px; top: ${axisHeightPx + this.#textEditing.boundPx.top}px; width: ${this.#textEditing.boundPx.width}px; min-height: ${this.#textEditing.boundPx.height}px;"
-					.value=${this.#textEditing.text}
-					@input=${event => this.#engine.updateEditingText(event.target.value)}
-					@keydown=${event => this.#textKeyDown(event)}
-					@blur=${() => this.#engine.finishTextEditing()}
-				></textarea>
-			` : ""}
 		`;
+	}
+
+	#retainableLabel(retainable) {
+		const widgetKind = retainable?.match(/^widget:(.+)$/)?.[1];
+		if (widgetKind) {
+			return findWidget(widgetKind)?.label;
+		}
+		return retainableTools.find(tool => tool.retainable === retainable)?.label;
+	}
+
+	// retainableTools are the mouse actions the user can choose. Only selecting is left for a
+	// view only document.
+	get #retainableTools() {
+		return retainableTools.filter(tool => !this.#isViewOnly || tool.retainable === "idle");
 	}
 
 	#documentMenuTemplate() {
@@ -384,9 +694,9 @@ class Editor extends HTMLElement {
 							</select>
 						</label>
 					</li>
-					<li><label><input type="checkbox" .checked=${!this.#isShapeToolHidden} @change=${event => this.#setShapeToolHidden(!event.target.checked)}> Format panel</label></li>
+					<li><label><input type="checkbox" .checked=${!this.#isShapeToolHidden} @change=${event => this.#setShapeToolHidden(!event.target.checked)}> Layers and properties</label></li>
 					<li>
-						Font size
+						<span>Font size</span>
 						<button title="Smaller" ?disabled=${this.#fontSize <= minFontSize} @click=${() => this.#setFontSize(this.#fontSize - 1)}>−</button>
 						${this.#fontSize}
 						<button title="Larger" ?disabled=${this.#fontSize >= maxFontSize} @click=${() => this.#setFontSize(this.#fontSize + 1)}>+</button>
@@ -643,7 +953,10 @@ class Editor extends HTMLElement {
 		if (changes.has("shapeTool")) {
 			this.#shapeTool = JSON.parse(this.#engine.shapeTool());
 		}
-		if (changes.has("textEditing") || changes.has("retainableAction") || changes.has("shapeTool")) {
+		if (changes.has("layers")) {
+			this.#layers = JSON.parse(this.#engine.layers());
+		}
+		if (changes.has("textEditing") || changes.has("retainableAction") || changes.has("shapeTool") || changes.has("layers")) {
 			this.render();
 			if (this.#textEditing) {
 				this.shadowRoot.querySelector("textarea").focus();
@@ -688,7 +1001,7 @@ class Editor extends HTMLElement {
 	// openDocument opens a document of the list. A server document opens on its page, and a
 	// document in this browser opens on /edit.
 	async #openDocument(localDocument) {
-		this.shadowRoot.getElementById("localDocument-menu").hidePopover();
+		this.shadowRoot.getElementById("document-menu").hidePopover();
 		if ((localDocument.serverId ?? null) === this.#serverId) {
 			await this.#restoreDocument(localDocument);
 			return;
@@ -999,6 +1312,63 @@ class Editor extends HTMLElement {
 		this.#showDocument(localDocument);
 	}
 
+	#setExportStatus(status) {
+		this.#exportStatus = status;
+		this.render();
+		clearTimeout(this.#exportStatusTimer);
+		this.#exportStatusTimer = setTimeout(() => {
+			this.#exportStatus = "";
+			this.render();
+		}, exportStatusMillis);
+	}
+
+	async #copyMarkdown() {
+		const text = this.#engine.exportText();
+		if (text === "") {
+			this.#setExportStatus("Nothing to export");
+			return;
+		}
+		try {
+			await navigator.clipboard.writeText(markdown(text));
+			this.#setExportStatus("Copied");
+		} catch (error) {
+			console.error("clipboard", error);
+			this.#setExportStatus("Cannot copy");
+		}
+	}
+
+	// imageOptions are how the exported image looks: as the canvas, in the current theme.
+	get #imageOptions() {
+		const style = getComputedStyle(this);
+		return {
+			cellSizePx: this.#cellSizePx,
+			charOffsetTop: this.#charOffsetTop,
+			fontSizePx: this.#fontSize,
+			fontFamily,
+			font: this.#font,
+			background: style.getPropertyValue("--background"),
+			color: style.getPropertyValue("--shape"),
+		};
+	}
+
+	#downloadSvg() {
+		const rows = this.#engine.exportRows();
+		if (rows.length === 0) {
+			this.#setExportStatus("Nothing to export");
+			return;
+		}
+		download(`${this.#documentName}.svg`, new Blob([svg(rows, this.#imageOptions)], {type: "image/svg+xml"}));
+	}
+
+	async #downloadPng() {
+		const rows = this.#engine.exportRows();
+		if (rows.length === 0) {
+			this.#setExportStatus("Nothing to export");
+			return;
+		}
+		download(`${this.#documentName}.png`, await png(rows, this.#imageOptions));
+	}
+
 	#showExport() {
 		this.#exportedText = this.#engine.exportText();
 		this.#showDialog("export-dialog");
@@ -1203,6 +1573,18 @@ class Editor extends HTMLElement {
 	#mouseMove(event) {
 		this.#canvas.style.cursor = this.#isOnAxesCorner(event) ? "pointer" : this.#engineCursor;
 		this.#mouse("mouseMove", event);
+		this.#setPointerCell({
+			row: Math.floor((event.offsetY - axisHeightPx - this.#offsetPx.top) / this.#cellSizePx.height),
+			column: Math.floor((event.offsetX - axisWidthPx - this.#offsetPx.left) / this.#cellSizePx.width),
+		});
+	}
+
+	#setPointerCell(cell) {
+		if (cell?.row === this.#pointerCell?.row && cell?.column === this.#pointerCell?.column) {
+			return;
+		}
+		this.#pointerCell = cell;
+		this.render();
 	}
 
 	// isOnAxesCorner reports whether the mouse is on the corner of the axes, which jumps to (0, 0).
@@ -1274,8 +1656,11 @@ class Editor extends HTMLElement {
 		}
 	}
 
+	// textKeyDown finishes editing. A field of a widget has one line, so Enter finishes it.
 	#textKeyDown(event) {
-		if (event.key === "Escape" || (event.key === "Enter" && hasCommandKey(event))) {
+		const isEnterFinishing = event.key === "Enter" && (hasCommandKey(event) || this.#textEditing?.isSingleLine);
+		if (event.key === "Escape" || isEnterFinishing) {
+			event.preventDefault();
 			event.target.blur();
 		}
 	}
@@ -1290,6 +1675,27 @@ class Editor extends HTMLElement {
 
 	#action(action) {
 		this.#engine.action(JSON.stringify(action));
+	}
+
+	#startRenameLayer(id) {
+		this.#renamingLayerId = id;
+		this.render();
+		const input = this.shadowRoot.querySelector("#layers input");
+		input?.focus();
+		input?.select();
+	}
+
+	// finishRenameLayer sends action, or nothing if renaming is canceled. Escape and the blur
+	// following it both finish, so only the first one counts.
+	#finishRenameLayer(action) {
+		if (this.#renamingLayerId === null) {
+			return;
+		}
+		this.#renamingLayerId = null;
+		if (action) {
+			this.#action(action);
+		}
+		this.render();
 	}
 }
 customElements.define("mono-editor", Editor);

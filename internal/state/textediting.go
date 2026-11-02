@@ -8,15 +8,16 @@ import (
 // minFreeTextWidth is the narrowest text editor for a free text.
 const minFreeTextWidth = 30
 
-// TextEditing is a text shape being edited. JS shows a text editor at BoundPx with Text, and
-// calls UpdateEditingText and FinishTextEditing.
+// TextEditing is a text being edited, of a text shape or a field of a widget. JS shows a text
+// editor at BoundPx with Text, and calls UpdateEditingText and FinishTextEditing.
 type TextEditing struct {
 	Text    string
 	BoundPx RectF
+	// IsSingleLine finishes editing on Enter, as a field of a widget has one line.
+	IsSingleLine bool
 
-	target     *shape.Text
-	isFreeText bool
-	onFinish   func(text string)
+	onChange func(text string)
+	onFinish func(text string)
 }
 
 type RectF struct {
@@ -37,18 +38,31 @@ func (m *Manager) startTextEditing(target *shape.Text, isFreeText bool, onFinish
 		contentHeight = 4
 	}
 
-	m.textEditing = &TextEditing{
-		Text: target.Text(),
-		BoundPx: RectF{
-			Left:   m.drawingInfo.toXPx(float64(contentBound.Left())),
-			Top:    m.drawingInfo.toYPx(float64(contentBound.Top())),
-			Width:  m.drawingInfo.toWidthPx(float64(contentWidth)),
-			Height: m.drawingInfo.toHeightPx(float64(contentHeight)),
+	m.showTextEditor(&TextEditing{
+		Text:    target.Text(),
+		BoundPx: m.boundPx(geo.Rect{Position: contentBound.Position, Size: geo.Size{Width: contentWidth, Height: contentHeight}}),
+		onChange: func(text string) {
+			m.shapeManager.Execute(shape.ChangeText{Target: target, NewText: text})
+			if !isFreeText {
+				m.adjustNormalTextSize(target)
+				m.addSelectedShape(target)
+			}
 		},
-		target:     target,
-		isFreeText: isFreeText,
-		onFinish:   onFinish,
+		onFinish: func(string) { onFinish(target.Text()) },
+	})
+}
+
+func (m *Manager) boundPx(bound geo.Rect) RectF {
+	return RectF{
+		Left:   m.drawingInfo.toXPx(float64(bound.Left())),
+		Top:    m.drawingInfo.toYPx(float64(bound.Top())),
+		Width:  m.drawingInfo.toWidthPx(float64(bound.Width())),
+		Height: m.drawingInfo.toHeightPx(float64(bound.Height())),
 	}
+}
+
+func (m *Manager) showTextEditor(editing *TextEditing) {
+	m.textEditing = editing
 	m.notify(ChangeTextEditing)
 }
 
@@ -59,11 +73,7 @@ func (m *Manager) UpdateEditingText(text string) {
 		return
 	}
 	editing.Text = text
-	m.shapeManager.Execute(shape.ChangeText{Target: editing.target, NewText: text})
-	if !editing.isFreeText {
-		m.adjustNormalTextSize(editing.target)
-		m.addSelectedShape(editing.target)
-	}
+	editing.onChange(text)
 }
 
 // FinishTextEditing is called by JS when the text editor is closed.
@@ -74,7 +84,7 @@ func (m *Manager) FinishTextEditing() {
 	}
 	m.textEditing = nil
 	m.notify(ChangeTextEditing)
-	editing.onFinish(editing.target.Text())
+	editing.onFinish(editing.Text)
 }
 
 // adjustNormalTextSize grows the text height to show all lines.

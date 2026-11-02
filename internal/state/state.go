@@ -34,6 +34,8 @@ const (
 	ChangeRetainableAction
 	// ChangeShapeTool asks JS to read ShapeTool again.
 	ChangeShapeTool
+	// ChangeLayers asks JS to read Layers again.
+	ChangeLayers
 )
 
 // EditingMode tells whether shapes are being changed by a mouse command or a text editor.
@@ -111,6 +113,11 @@ func New(shapeManager *shape.Manager, actions *action.Manager, notify func(Chang
 		}
 		m.notify(ChangeRetainableAction)
 	})
+
+	shapeManager.Version.Observe(func(int) { m.leaveRemovedWorkingGroup() })
+	notifyLayers := func() { m.notify(ChangeLayers) }
+	m.selection.SelectedShapes.Observe(func([]shape.Shape) { notifyLayers() })
+	shapeManager.Version.Observe(func(int) { notifyLayers() })
 
 	notifyShapeTool := func() { m.notify(ChangeShapeTool) }
 	m.selection.SelectedShapes.Observe(func([]shape.Shape) { notifyShapeTool() })
@@ -264,6 +271,9 @@ func (m *Manager) redraw() {
 }
 
 func (m *Manager) drawShape(target shape.Shape) {
+	if target.IsHidden() {
+		return
+	}
 	if group, ok := target.(*shape.Group); ok {
 		for _, child := range group.Items() {
 			m.drawShape(child)
@@ -282,10 +292,15 @@ func (m *Manager) highlight(target shape.Shape) board.Highlight {
 	if text, ok := target.(*shape.Text); ok && text.IsTextEditing() {
 		return board.HighlightTextEditing
 	}
-	if slices.Contains(m.selection.SelectedShapes.Value(), target) {
+	if m.isSelectedInGroups(target) {
 		return board.HighlightSelected
 	}
-	focusType, ok := m.selection.FocusType(target)
+	var focusType selection.FocusType
+	ok := false
+	// A hovered group highlights the shapes in it.
+	for current := target; current != nil && !ok; current = m.parentShape(current) {
+		focusType, ok = m.selection.FocusType(current)
+	}
 	if !ok {
 		return board.HighlightNone
 	}
@@ -300,8 +315,15 @@ func (m *Manager) highlight(target shape.Shape) board.Highlight {
 func (m *Manager) updateInteractionBounds(selectedShapes []shape.Shape) {
 	var bounds []interactionbound.Bound
 	for _, selected := range m.interactionBoundShapes(selectedShapes) {
+		// A group, a locked shape and a widget of a fixed size cannot be scaled, so only their
+		// bound is shown.
+		widget, isWidget := selected.(*shape.Widget)
+		if _, ok := selected.(*shape.Group); ok || m.isLockedInGroups(selected) || isWidget && !widget.IsResizeable() {
+			bounds = append(bounds, interactionbound.NewOutlineBound(selected.Bound()))
+			continue
+		}
 		switch selected := selected.(type) {
-		case *shape.Rectangle, *shape.Text:
+		case *shape.Rectangle, *shape.Text, *shape.Widget:
 			bounds = append(bounds, interactionbound.NewScalableBound(selected.ID(), selected.Bound()))
 		case *shape.Line:
 			bounds = append(bounds, interactionbound.NewLineBound(selected.ID(), selected.Edges()))
@@ -332,8 +354,11 @@ func (m *Manager) interactionPoint(pointPx geo.Point) (interactionbound.Point, b
 	return nil, false
 }
 
+// isPointInInteractionBounds reports whether point is on a selected shape the mouse can move.
 func (m *Manager) isPointInInteractionBounds(point geo.Point) bool {
-	return slices.ContainsFunc(m.selection.SelectedShapes.Value(), func(selected shape.Shape) bool { return selected.Contains(point) })
+	return slices.ContainsFunc(m.selection.SelectedShapes.Value(), func(selected shape.Shape) bool {
+		return selected.Contains(point) && !m.isLockedInGroups(selected)
+	})
 }
 
 func (m *Manager) setSelectionBound(bound *geo.Rect) {
@@ -369,8 +394,11 @@ func (m *Manager) addSelectedShape(target shape.Shape) {
 	}
 }
 
+// selectAllShapes selects the items of the working group which the canvas can select.
 func (m *Manager) selectAllShapes() {
 	for _, item := range m.workingParentGroup.Items() {
-		m.addSelectedShape(item)
+		if !item.IsHidden() && !item.IsLocked() {
+			m.addSelectedShape(item)
+		}
 	}
 }

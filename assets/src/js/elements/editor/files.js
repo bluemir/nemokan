@@ -4,9 +4,14 @@
 export const extension = "mono";
 
 export function saveFile(name, content) {
+	download(`${name}.${extension}`, new Blob([content], {type: "application/json"}));
+}
+
+// download saves blob as a file with fileName.
+export function download(fileName, blob) {
 	const link = document.createElement("a");
-	link.href = URL.createObjectURL(new Blob([content], {type: "application/json"}));
-	link.download = `${name}.${extension}`;
+	link.href = URL.createObjectURL(blob);
+	link.download = fileName;
 	link.click();
 	URL.revokeObjectURL(link.href);
 }

@@ -36,6 +36,8 @@ func (m *Manager) Bitmap(target shape.Shape) *bitmap.Bitmap {
 		drawn = textBitmap(target.Bound().Size, target.RenderableText().Lines(), target.Extra(), target.IsTextEditing())
 	case *shape.Line:
 		drawn = lineBitmap(target.ReducedJointPoints(), target.Extra())
+	case *shape.Widget:
+		drawn = widgetBitmap(target.Bound().Size, target.Layout(), target.Extra())
 	default:
 		return nil
 	}

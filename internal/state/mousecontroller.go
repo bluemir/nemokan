@@ -53,6 +53,16 @@ func (c *mouseInteractionController) onMouseEvent(pointer MousePointer) {
 				break
 			}
 		}
+		switch targeted := targeted.(type) {
+		case *shape.Group:
+			c.enterGroup(targeted, pointer)
+			return
+		case *shape.Widget:
+			if !m.isLockedInGroups(targeted) {
+				m.editWidgetAt(targeted, pointer.BoardCoordinate())
+			}
+			return
+		}
 		m.actions.SetOneTime(action.EditSelectedShape{Shape: targeted})
 		return
 	}
@@ -82,6 +92,18 @@ func (c *mouseInteractionController) onMouseEvent(pointer MousePointer) {
 		// Avoid the click after adding a shape selecting a shape.
 		c.postedActions = append(c.postedActions, func() { m.actions.SetRetainable(action.RetainableIdle) })
 	}
+}
+
+// enterGroup makes group the working group, and selects its item under the mouse. See
+// ADR-0013.
+func (c *mouseInteractionController) enterGroup(group *shape.Group, pointer MousePointer) {
+	m := c.manager
+	m.setWorkingParentGroup(group)
+	m.selection.Clear()
+	if item, ok := m.topWorkingItem(m.searcher.Shapes(pointer.BoardCoordinate())); ok {
+		m.addSelectedShape(item)
+	}
+	c.hover.reset()
 }
 
 func (c *mouseInteractionController) detectHoverShape(pointer MousePointer) {
@@ -128,6 +150,9 @@ func (c *mouseInteractionController) newCommand(pointer MousePointer) mouseComma
 	case MouseDown:
 		if command := c.interactionCommand(pointer); command != nil {
 			return command
+		}
+		if kind, ok := m.actions.Retainable.Value().AddingWidget(); ok {
+			return &addWidgetCommand{kind: kind}
 		}
 		switch m.actions.Retainable.Value() {
 		case action.AddRectangle:
@@ -181,15 +206,16 @@ func (c *mouseInteractionController) interactionCommand(pointer MouseDown) mouse
 	}
 
 	if !pointer.IsWithShiftKey && m.isPointInInteractionBounds(pointer.Point) {
+		movableShapes := m.movableSelectedShapes()
 		var relatedShapes []shape.Shape
-		for _, selected := range selectedShapes {
+		for _, selected := range movableShapes {
 			for _, connector := range m.shapeManager.ShapeConnector().Connectors(selected) {
 				if line, ok := m.shapeManager.Shape(connector.LineID); ok {
 					relatedShapes = append(relatedShapes, line)
 				}
 			}
 		}
-		return newMoveShapeCommand(selectedShapes, relatedShapes)
+		return newMoveShapeCommand(movableShapes, relatedShapes)
 	}
 	return nil
 }

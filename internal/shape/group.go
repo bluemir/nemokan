@@ -23,7 +23,7 @@ func restoreGroup(serializable *SerializableGroup, parentID string) *Group {
 	for _, item := range serializable.Shapes {
 		group.addInternal(RestoreShape(item, group.id))
 	}
-	group.versionCode = serializable.VersionCode
+	group.restore(serializable.serializableBase)
 	return group
 }
 
@@ -38,6 +38,8 @@ func RestoreShape(serializable SerializableShape, parentID string) Shape {
 		return restoreLine(serializable, parentID)
 	case *SerializableGroup:
 		return restoreGroup(serializable, parentID)
+	case *SerializableWidget:
+		return restoreWidget(serializable, parentID)
 	}
 	panic(fmt.Sprintf("unknown serializable shape: %T", serializable))
 }
@@ -75,7 +77,7 @@ func (g *Group) Serializable(isIDIncluded bool) SerializableShape {
 		shapes[i] = item.Serializable(isIDIncluded)
 	}
 	return &SerializableGroup{
-		serializableBase: serializableBase{ID: g.id, IsIDTemporary: !isIDIncluded, VersionCode: g.versionCode},
+		serializableBase: g.serializableBase(isIDIncluded),
 		Shapes:           shapes,
 	}
 }

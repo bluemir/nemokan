@@ -31,6 +31,25 @@ func TestExportText(t *testing.T) {
 	assert.False(t, ok)
 }
 
+func TestExportRows(t *testing.T) {
+	state := newTestState(t)
+	assert.Nil(t, state.ExportRows())
+
+	state.addRectangle(point(1, 1), point(4, 3))
+	state.Paste("한글")
+	state.click(point(30, 20), false)
+
+	tail := string(WideCharTailInView)
+	assert.Equal(t, []string{
+		"┌──┐       ",
+		"│  │       ",
+		"└──┘       ",
+		"           ",
+		"           ",
+		"       한" + tail + "글" + tail,
+	}, state.ExportRows())
+}
+
 func TestCopyText(t *testing.T) {
 	state := newTestState(t)
 	state.addRectangle(point(1, 1), point(4, 3))
