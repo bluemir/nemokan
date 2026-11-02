@@ -27,7 +27,7 @@
 					</div>
 				</form>
 				<div>
-					<passkey-login redirect="/posts">Login with Passkey</passkey-login>
+					<passkey-login redirect="/">Login with Passkey</passkey-login>
 				</div>
 				<div>
 					<a href="/users/recover">계정 복구</a>
@@ -46,6 +46,23 @@
 		<script type="module">
 			import * as $ from "bm.js/bm.module.js";
 
+			// nextPath is where to go after login: the next parameter or the page before,
+			// if it is on this site and not a login or register page. Otherwise the first page.
+			function nextPath() {
+				for (const candidate of [new URLSearchParams(location.search).get("next"), document.referrer]) {
+					if (!candidate) {
+						continue;
+					}
+					const url = new URL(candidate, location.origin);
+					if (url.origin === location.origin && !["/users/login", "/users/register"].includes(url.pathname)) {
+						return url.pathname + url.search + url.hash;
+					}
+				}
+				return "/";
+			}
+			const next = nextPath();
+			$.get("passkey-login").setAttribute("redirect", next);
+
 			$.get("form").on("submit", async evt => {
 				evt.preventDefault();
 
@@ -54,7 +71,7 @@
 
 					let res = await $.request("POST", `/api/v1/login`, {body:fd});
 
-					location.href = "/posts"
+					location.href = next;
 				} catch(e) {
 					console.log(e);
 					// TODO render message to html

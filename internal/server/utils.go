@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/gin-contrib/location"
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
 
@@ -35,6 +36,20 @@ func fixURL(c *gin.Context) {
 	c.Request.URL.Scheme = url.Scheme
 	c.Request.URL.Host = url.Host
 }
+
+// sessionCookieOptions keeps the session cookie from page scripts (HttpOnly) and from requests
+// started by other sites (SameSite Lax, so links from other sites still keep the login).
+// It is Secure when the request came over HTTPS, directly or through a proxy, so the cookie
+// is not sent over plain HTTP after that.
+func sessionCookieOptions(c *gin.Context) {
+	sessions.Default(c).Options(sessions.Options{
+		Path:     "/",
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+		Secure:   c.Request.URL.Scheme == "https",
+	})
+}
+
 func markAcceptJSON(c *gin.Context) {
 	c.SetAccepted("application/json")
 }

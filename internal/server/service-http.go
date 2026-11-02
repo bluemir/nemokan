@@ -49,14 +49,12 @@ func (server *Server) RunServiceHTTPServer(ctx context.Context, bind string, tls
 		app.Use(errs.Middleware)
 		app.Use(gin.Recovery())
 
+		// The session cookie options need the scheme, which location reads.
+		app.Use(location.Default(), fixURL)
+
 		// sessions
 		store := cookie.NewStore([]byte(buildinfo.Signature()))
-		store.Options(sessions.Options{
-			Path: "/",
-		})
-		app.Use(sessions.Sessions("monosketch_session", store))
-
-		app.Use(location.Default(), fixURL)
+		app.Use(sessions.Sessions("monosketch_session", store), sessionCookieOptions)
 		app.Use(cache.CacheBusting)
 
 		app.Use(injector.Inject(server.backends, server.mail))
