@@ -9,8 +9,8 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 
-	"github.com/bluemir/monosketch/internal/pubsub"
-	"github.com/bluemir/monosketch/internal/server/backend/auth"
+	"github.com/bluemir/nemokan/internal/pubsub"
+	"github.com/bluemir/nemokan/internal/server/backend/auth"
 )
 
 func newTestManager(t *testing.T) *auth.Manager {

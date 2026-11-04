@@ -6,9 +6,9 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/bluemir/monosketch/internal/bitmap"
-	"github.com/bluemir/monosketch/internal/geo"
-	"github.com/bluemir/monosketch/internal/shape"
+	"github.com/bluemir/nemokan/internal/bitmap"
+	"github.com/bluemir/nemokan/internal/geo"
+	"github.com/bluemir/nemokan/internal/shape"
 )
 
 const (

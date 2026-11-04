@@ -1,8 +1,8 @@
 package state
 
 import (
-	"github.com/bluemir/monosketch/internal/geo"
-	"github.com/bluemir/monosketch/internal/shape"
+	"github.com/bluemir/nemokan/internal/geo"
+	"github.com/bluemir/nemokan/internal/shape"
 )
 
 // minFreeTextWidth is the narrowest text editor for a free text.

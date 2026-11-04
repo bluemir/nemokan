@@ -12,8 +12,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 
-	"github.com/bluemir/monosketch/internal/server/backend/auth"
-	"github.com/bluemir/monosketch/internal/server/backend/meta"
+	"github.com/bluemir/nemokan/internal/server/backend/auth"
+	"github.com/bluemir/nemokan/internal/server/backend/meta"
 )
 
 // code 가 에러 종류마다 어떤 상태를 내는지 고정한다.

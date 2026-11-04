@@ -12,7 +12,7 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 
-	"github.com/bluemir/monosketch/internal/server/backend/auth"
+	"github.com/bluemir/nemokan/internal/server/backend/auth"
 )
 
 const (

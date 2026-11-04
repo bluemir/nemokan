@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/bluemir/monosketch/internal/bitmap"
-	"github.com/bluemir/monosketch/internal/geo"
+	"github.com/bluemir/nemokan/internal/bitmap"
+	"github.com/bluemir/nemokan/internal/geo"
 )
 
 // The kinds of widgets, from Mockdown. Marks are ASCII, so they take one cell in any font.

@@ -9,8 +9,8 @@ import (
 
 	"github.com/go-webauthn/webauthn/protocol"
 
-	"github.com/bluemir/monosketch/internal/pubsub"
-	"github.com/bluemir/monosketch/internal/server/backend/meta"
+	"github.com/bluemir/nemokan/internal/pubsub"
+	"github.com/bluemir/nemokan/internal/server/backend/meta"
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
 )

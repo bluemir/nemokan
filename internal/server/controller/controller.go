@@ -5,7 +5,7 @@ import (
 
 	"golang.org/x/sync/errgroup"
 
-	"github.com/bluemir/monosketch/internal/server/backend"
+	"github.com/bluemir/nemokan/internal/server/backend"
 )
 
 // Controller watches job lifecycle events and performs post-processing.

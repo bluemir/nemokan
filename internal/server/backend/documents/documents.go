@@ -9,9 +9,9 @@ import (
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 
-	"github.com/bluemir/monosketch/internal/server/backend/auth"
-	"github.com/bluemir/monosketch/internal/shape"
-	"github.com/bluemir/monosketch/internal/util"
+	"github.com/bluemir/nemokan/internal/server/backend/auth"
+	"github.com/bluemir/nemokan/internal/shape"
+	"github.com/bluemir/nemokan/internal/util"
 )
 
 var (

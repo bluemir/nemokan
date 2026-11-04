@@ -3,7 +3,7 @@ package cache
 import (
 	"github.com/gin-gonic/gin"
 
-	"github.com/bluemir/monosketch/internal/buildinfo"
+	"github.com/bluemir/nemokan/internal/buildinfo"
 )
 
 const (

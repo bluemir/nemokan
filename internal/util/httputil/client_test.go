@@ -9,7 +9,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/bluemir/monosketch/internal/util/httputil"
+	"github.com/bluemir/nemokan/internal/util/httputil"
 )
 
 func TestHttpClient(t *testing.T) {

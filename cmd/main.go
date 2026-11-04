@@ -9,9 +9,9 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
 
-	serverCmd "github.com/bluemir/monosketch/cmd/server"
-	tuiCmd "github.com/bluemir/monosketch/cmd/tui"
-	"github.com/bluemir/monosketch/internal/buildinfo"
+	serverCmd "github.com/bluemir/nemokan/cmd/server"
+	tuiCmd "github.com/bluemir/nemokan/cmd/tui"
+	"github.com/bluemir/nemokan/internal/buildinfo"
 )
 
 const (

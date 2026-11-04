@@ -3,7 +3,7 @@ package shape
 import (
 	"fmt"
 
-	"github.com/bluemir/monosketch/internal/geo"
+	"github.com/bluemir/nemokan/internal/geo"
 )
 
 // Group is a shape that holds other shapes in order.

@@ -9,8 +9,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 
-	"github.com/bluemir/monosketch/internal/pubsub"
-	"github.com/bluemir/monosketch/internal/server/backend/meta"
+	"github.com/bluemir/nemokan/internal/pubsub"
+	"github.com/bluemir/nemokan/internal/server/backend/meta"
 )
 
 type Config struct {

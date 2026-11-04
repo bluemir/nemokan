@@ -3,10 +3,10 @@ package backend
 import (
 	"context"
 
-	"github.com/bluemir/monosketch/internal/pubsub"
-	"github.com/bluemir/monosketch/internal/server/backend/auth"
-	"github.com/bluemir/monosketch/internal/server/backend/documents"
-	"github.com/bluemir/monosketch/internal/server/backend/jobs"
+	"github.com/bluemir/nemokan/internal/pubsub"
+	"github.com/bluemir/nemokan/internal/server/backend/auth"
+	"github.com/bluemir/nemokan/internal/server/backend/documents"
+	"github.com/bluemir/nemokan/internal/server/backend/jobs"
 	"gorm.io/gorm"
 )
 

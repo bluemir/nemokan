@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/bluemir/monosketch/internal/shape"
+	"github.com/bluemir/nemokan/internal/shape"
 )
 
 // OneTime is an action which has effect only once. In JSON, "type" tells which one.

@@ -40,7 +40,7 @@ class GlobalNavigationBar extends HTMLElement {
 				}
 			</style>
 			<nav>
-				<a id="logo" href="/">monosketch</a>
+				<a id="logo" href="/">nemokan</a>
 				<a href="/edit">Editor</a>
 			</nav>
 			<nav>

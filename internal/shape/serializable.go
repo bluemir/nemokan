@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/bluemir/monosketch/internal/geo"
+	"github.com/bluemir/nemokan/internal/geo"
 )
 
 // SerializableShape is the stored form of a shape: *SerializableRectangle, *SerializableText,

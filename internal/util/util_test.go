@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/bluemir/monosketch/internal/util"
+	"github.com/bluemir/nemokan/internal/util"
 	"github.com/stretchr/testify/assert"
 )
 

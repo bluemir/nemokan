@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/bluemir/monosketch/internal/pubsub"
+	"github.com/bluemir/nemokan/internal/pubsub"
 )
 
 // blockingHandler 는 풀어 줄 때까지 Handle 에서 버틴다

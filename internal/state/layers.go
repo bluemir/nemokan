@@ -3,9 +3,9 @@ package state
 import (
 	"slices"
 
-	"github.com/bluemir/monosketch/internal/action"
-	"github.com/bluemir/monosketch/internal/geo"
-	"github.com/bluemir/monosketch/internal/shape"
+	"github.com/bluemir/nemokan/internal/action"
+	"github.com/bluemir/nemokan/internal/geo"
+	"github.com/bluemir/nemokan/internal/shape"
 )
 
 // Groups and layers. See ADR-0013.

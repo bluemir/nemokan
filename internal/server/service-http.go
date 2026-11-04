@@ -12,12 +12,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
-	"github.com/bluemir/monosketch/internal/buildinfo"
-	"github.com/bluemir/monosketch/internal/server/graceful"
-	"github.com/bluemir/monosketch/internal/server/injector"
-	"github.com/bluemir/monosketch/internal/server/middleware/cache"
-	"github.com/bluemir/monosketch/internal/server/middleware/errs"
-	"github.com/bluemir/monosketch/internal/server/middleware/prom"
+	"github.com/bluemir/nemokan/internal/buildinfo"
+	"github.com/bluemir/nemokan/internal/server/graceful"
+	"github.com/bluemir/nemokan/internal/server/injector"
+	"github.com/bluemir/nemokan/internal/server/middleware/cache"
+	"github.com/bluemir/nemokan/internal/server/middleware/errs"
+	"github.com/bluemir/nemokan/internal/server/middleware/prom"
 )
 
 func (server *Server) RunServiceHTTPServer(ctx context.Context, bind string, tlsConf *tls.Config) func() error {
@@ -54,7 +54,7 @@ func (server *Server) RunServiceHTTPServer(ctx context.Context, bind string, tls
 
 		// sessions
 		store := cookie.NewStore([]byte(buildinfo.Signature()))
-		app.Use(sessions.Sessions("monosketch_session", store), sessionCookieOptions)
+		app.Use(sessions.Sessions("nemokan_session", store), sessionCookieOptions)
 		app.Use(cache.CacheBusting)
 
 		app.Use(injector.Inject(server.backends, server.mail))

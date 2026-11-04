@@ -3,9 +3,9 @@ package bitmapmanager
 import (
 	"slices"
 
-	"github.com/bluemir/monosketch/internal/bitmap"
-	"github.com/bluemir/monosketch/internal/geo"
-	"github.com/bluemir/monosketch/internal/shape"
+	"github.com/bluemir/nemokan/internal/bitmap"
+	"github.com/bluemir/nemokan/internal/geo"
+	"github.com/bluemir/nemokan/internal/shape"
 )
 
 // widgetBitmap draws what the layout of a widget shows. A widget in a box is drawn as a

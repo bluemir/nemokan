@@ -1,8 +1,10 @@
-monosketch-clone
+nemokan
 Copyright 2026 BlueMir
 Licensed under the Apache License, Version 2.0 (see LICENSE).
 
-This project is a Go port of MonoSketch.
+nemokan is based on MonoSketch (commit 6eeb753), ported to Go.
+The user interface and the UI elements are inspired by Mockdown
+(https://github.com/bbssppllvv/Mockdown). No code of Mockdown is included.
 
 MonoSketch
 Copyright (c) 2023, tuanchauict

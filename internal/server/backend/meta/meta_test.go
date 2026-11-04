@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/bluemir/monosketch/internal/server/backend/meta"
+	"github.com/bluemir/nemokan/internal/server/backend/meta"
 )
 
 func TestPageOption(t *testing.T) {

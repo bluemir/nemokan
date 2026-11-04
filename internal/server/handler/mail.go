@@ -9,7 +9,7 @@ import (
 
 	"github.com/cockroachdb/errors"
 
-	"github.com/bluemir/monosketch/internal/mail"
+	"github.com/bluemir/nemokan/internal/mail"
 )
 
 //go:embed mail-templates

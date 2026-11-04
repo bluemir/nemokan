@@ -3,7 +3,7 @@ package shape
 import (
 	"fmt"
 
-	"github.com/bluemir/monosketch/internal/geo"
+	"github.com/bluemir/nemokan/internal/geo"
 )
 
 // Command changes shapes through Manager.Execute.

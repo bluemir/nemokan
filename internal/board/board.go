@@ -4,8 +4,8 @@
 package board
 
 import (
-	"github.com/bluemir/monosketch/internal/bitmap"
-	"github.com/bluemir/monosketch/internal/geo"
+	"github.com/bluemir/nemokan/internal/bitmap"
+	"github.com/bluemir/nemokan/internal/geo"
 )
 
 var unitSize = geo.Size{Width: 16, Height: 16}

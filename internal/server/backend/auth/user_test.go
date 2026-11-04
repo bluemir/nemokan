@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/bluemir/monosketch/internal/server/backend/auth"
+	"github.com/bluemir/nemokan/internal/server/backend/auth"
 )
 
 func TestUserCRUD(t *testing.T) {

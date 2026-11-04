@@ -5,7 +5,7 @@ import (
 
 	"github.com/cockroachdb/errors"
 
-	"github.com/bluemir/monosketch/internal/server/backend/meta"
+	"github.com/bluemir/nemokan/internal/server/backend/meta"
 )
 
 type Group struct {

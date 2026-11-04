@@ -3,8 +3,8 @@ package injector
 import (
 	"github.com/gin-gonic/gin"
 
-	"github.com/bluemir/monosketch/internal/mail"
-	"github.com/bluemir/monosketch/internal/server/backend"
+	"github.com/bluemir/nemokan/internal/mail"
+	"github.com/bluemir/nemokan/internal/server/backend"
 )
 
 type keyBackend struct{}

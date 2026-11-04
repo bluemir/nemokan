@@ -1,6 +1,6 @@
 package shape
 
-import "github.com/bluemir/monosketch/internal/observable"
+import "github.com/bluemir/nemokan/internal/observable"
 
 // Manager holds all shapes of a sketch and changes them with commands.
 type Manager struct {

@@ -3,8 +3,8 @@
 package interactionbound
 
 import (
-	"github.com/bluemir/monosketch/internal/geo"
-	"github.com/bluemir/monosketch/internal/shape"
+	"github.com/bluemir/nemokan/internal/geo"
+	"github.com/bluemir/nemokan/internal/shape"
 )
 
 // Bound is the interaction bound of a shape: *ScalableBound or *LineBound.

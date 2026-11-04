@@ -3,7 +3,7 @@ package shape
 import (
 	"fmt"
 
-	"github.com/bluemir/monosketch/internal/bitmap"
+	"github.com/bluemir/nemokan/internal/bitmap"
 )
 
 // AnchorChar is the char drawn at an end of a line.

@@ -11,8 +11,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
-	"github.com/bluemir/monosketch/internal/buildinfo"
-	"github.com/bluemir/monosketch/internal/server/backend/auth"
+	"github.com/bluemir/nemokan/internal/buildinfo"
+	"github.com/bluemir/nemokan/internal/server/backend/auth"
 )
 
 // sendVerificationMail 은 확인 비밀을 발급하고 메일 발송을 백그라운드로 넘긴다.

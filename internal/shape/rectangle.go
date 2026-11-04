@@ -3,7 +3,7 @@ package shape
 import (
 	"fmt"
 
-	"github.com/bluemir/monosketch/internal/geo"
+	"github.com/bluemir/nemokan/internal/geo"
 )
 
 type Rectangle struct {

@@ -4,8 +4,8 @@ package selection
 import (
 	"slices"
 
-	"github.com/bluemir/monosketch/internal/observable"
-	"github.com/bluemir/monosketch/internal/shape"
+	"github.com/bluemir/nemokan/internal/observable"
+	"github.com/bluemir/nemokan/internal/shape"
 )
 
 // FocusType is why a shape is focused.

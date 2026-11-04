@@ -3,7 +3,7 @@ package resource
 import (
 	"github.com/gin-gonic/gin"
 
-	"github.com/bluemir/monosketch/internal/server/backend/auth"
+	"github.com/bluemir/nemokan/internal/server/backend/auth"
 )
 
 func Server(c *gin.Context) auth.Resource {

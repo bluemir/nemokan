@@ -3,7 +3,7 @@ package workers
 import (
 	"context"
 
-	"github.com/bluemir/monosketch/internal/datastruct"
+	"github.com/bluemir/nemokan/internal/datastruct"
 	"github.com/sirupsen/logrus"
 )
 

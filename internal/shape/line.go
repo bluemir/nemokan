@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/bluemir/monosketch/internal/geo"
+	"github.com/bluemir/nemokan/internal/geo"
 )
 
 // Line connects two directed end points with straight edges.

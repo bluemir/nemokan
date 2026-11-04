@@ -11,12 +11,12 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
-	"github.com/bluemir/monosketch/internal/server/graceful"
-	"github.com/bluemir/monosketch/internal/server/handler"
-	"github.com/bluemir/monosketch/internal/server/middleware/prom"
+	"github.com/bluemir/nemokan/internal/server/graceful"
+	"github.com/bluemir/nemokan/internal/server/handler"
+	"github.com/bluemir/nemokan/internal/server/middleware/prom"
 
 	// swagger
-	_ "github.com/bluemir/monosketch/internal/swagger"
+	_ "github.com/bluemir/nemokan/internal/swagger"
 )
 
 func (server *Server) RunAdminHTTPServer(ctx context.Context, bind string) func() error {

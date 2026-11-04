@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/bluemir/monosketch/internal/server/graceful"
+	"github.com/bluemir/nemokan/internal/server/graceful"
 )
 
 func TestRun(t *testing.T) {

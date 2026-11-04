@@ -2,8 +2,8 @@
 package bitmapmanager
 
 import (
-	"github.com/bluemir/monosketch/internal/bitmap"
-	"github.com/bluemir/monosketch/internal/shape"
+	"github.com/bluemir/nemokan/internal/bitmap"
+	"github.com/bluemir/nemokan/internal/shape"
 )
 
 // Manager caches the bitmap of each shape. The cache hits when both the id and the version

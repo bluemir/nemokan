@@ -6,7 +6,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/bluemir/monosketch/internal/geo"
+	"github.com/bluemir/nemokan/internal/geo"
 )
 
 const (

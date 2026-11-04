@@ -9,7 +9,7 @@ import (
 	"github.com/rs/xid"
 	"github.com/sirupsen/logrus"
 
-	"github.com/bluemir/monosketch/internal/datastruct"
+	"github.com/bluemir/nemokan/internal/datastruct"
 )
 
 // 발행은 두 가지다. 부르는 쪽이 결과를 쓰는지로 갈린다.

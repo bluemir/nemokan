@@ -3,7 +3,7 @@ package state
 import (
 	"math"
 
-	"github.com/bluemir/monosketch/internal/geo"
+	"github.com/bluemir/nemokan/internal/geo"
 )
 
 // DrawingInfo converts between canvas pixels and board cells. JS sets it when the canvas

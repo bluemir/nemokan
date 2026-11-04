@@ -1,6 +1,6 @@
 package shape
 
-import "github.com/bluemir/monosketch/internal/observable"
+import "github.com/bluemir/nemokan/internal/observable"
 
 // Extra is the shape specific attributes: RectangleExtra, TextExtra or LineExtra.
 type Extra interface {

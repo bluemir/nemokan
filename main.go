@@ -5,7 +5,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/bluemir/monosketch/cmd"
+	"github.com/bluemir/nemokan/cmd"
 )
 
 func main() {

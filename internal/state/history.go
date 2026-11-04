@@ -1,6 +1,6 @@
 package state
 
-import "github.com/bluemir/monosketch/internal/shape"
+import "github.com/bluemir/nemokan/internal/shape"
 
 // Backup is the state of shapes to keep in the history and the local storage.
 type Backup struct {

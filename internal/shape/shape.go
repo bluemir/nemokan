@@ -5,8 +5,8 @@ package shape
 import (
 	"math/rand/v2"
 
-	"github.com/bluemir/monosketch/internal/geo"
-	"github.com/bluemir/monosketch/internal/uuid"
+	"github.com/bluemir/nemokan/internal/geo"
+	"github.com/bluemir/nemokan/internal/uuid"
 )
 
 // Shape is one of *Rectangle, *Text, *Line, *Widget and *Group.

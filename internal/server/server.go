@@ -14,10 +14,10 @@ import (
 	"golang.org/x/sync/errgroup"
 	"gopkg.in/yaml.v3"
 
-	"github.com/bluemir/monosketch/assets"
-	"github.com/bluemir/monosketch/internal/mail"
-	"github.com/bluemir/monosketch/internal/server/backend"
-	"github.com/bluemir/monosketch/internal/server/controller"
+	"github.com/bluemir/nemokan/assets"
+	"github.com/bluemir/nemokan/internal/mail"
+	"github.com/bluemir/nemokan/internal/server/backend"
+	"github.com/bluemir/nemokan/internal/server/controller"
 )
 
 type Args struct {

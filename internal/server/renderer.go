@@ -11,8 +11,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
-	"github.com/bluemir/monosketch/assets"
-	"github.com/bluemir/monosketch/internal/server/middleware/cache"
+	"github.com/bluemir/nemokan/assets"
+	"github.com/bluemir/nemokan/internal/server/middleware/cache"
 )
 
 func NewRenderer() (*template.Template, error) {

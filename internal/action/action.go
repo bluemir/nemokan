@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bluemir/monosketch/internal/cursor"
-	"github.com/bluemir/monosketch/internal/observable"
-	"github.com/bluemir/monosketch/internal/shape"
+	"github.com/bluemir/nemokan/internal/cursor"
+	"github.com/bluemir/nemokan/internal/observable"
+	"github.com/bluemir/nemokan/internal/shape"
 )
 
 // Retainable is an action which keeps having effect after it is set, such as adding

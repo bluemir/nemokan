@@ -12,10 +12,10 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 
-	"github.com/bluemir/monosketch/internal/geo"
-	"github.com/bluemir/monosketch/internal/server/backend/auth"
-	"github.com/bluemir/monosketch/internal/shape"
-	"github.com/bluemir/monosketch/internal/util"
+	"github.com/bluemir/nemokan/internal/geo"
+	"github.com/bluemir/nemokan/internal/server/backend/auth"
+	"github.com/bluemir/nemokan/internal/shape"
+	"github.com/bluemir/nemokan/internal/util"
 )
 
 const clientIP = "192.0.2.1"

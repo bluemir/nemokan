@@ -8,8 +8,8 @@ import (
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/sirupsen/logrus"
 
-	"github.com/bluemir/monosketch/internal/buildinfo"
-	"github.com/bluemir/monosketch/internal/tui"
+	"github.com/bluemir/nemokan/internal/buildinfo"
+	"github.com/bluemir/nemokan/internal/tui"
 )
 
 func Register(cmd *kingpin.CmdClause) {

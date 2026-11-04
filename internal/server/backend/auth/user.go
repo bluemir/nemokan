@@ -9,7 +9,7 @@ import (
 	"github.com/rs/xid"
 	"gorm.io/gorm"
 
-	"github.com/bluemir/monosketch/internal/server/backend/meta"
+	"github.com/bluemir/nemokan/internal/server/backend/meta"
 )
 
 type User struct {

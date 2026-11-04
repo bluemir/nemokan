@@ -3,9 +3,9 @@ package interactionbound
 import (
 	"math"
 
-	"github.com/bluemir/monosketch/internal/cursor"
-	"github.com/bluemir/monosketch/internal/geo"
-	"github.com/bluemir/monosketch/internal/shape"
+	"github.com/bluemir/nemokan/internal/cursor"
+	"github.com/bluemir/nemokan/internal/geo"
+	"github.com/bluemir/nemokan/internal/shape"
 )
 
 // Point is a point the user drags to change a shape: *ScalePoint, *LineAnchorPoint or

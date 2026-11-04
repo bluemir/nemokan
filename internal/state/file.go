@@ -3,9 +3,9 @@ package state
 import (
 	"slices"
 
-	"github.com/bluemir/monosketch/internal/board"
-	"github.com/bluemir/monosketch/internal/geo"
-	"github.com/bluemir/monosketch/internal/shape"
+	"github.com/bluemir/nemokan/internal/board"
+	"github.com/bluemir/nemokan/internal/geo"
+	"github.com/bluemir/nemokan/internal/shape"
 )
 
 // SelectedShapesText returns the selected shapes drawn as text, without the hidden ones. It

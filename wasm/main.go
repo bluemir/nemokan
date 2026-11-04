@@ -1,19 +1,19 @@
 //go:build js && wasm
 
 // Package main is the browser entry point. It exposes the editor engine to JS
-// as the global `monosketch` object. See ADR-0005, ADR-0006 and ADR-0007.
+// as the global `nemokan` object. See ADR-0005, ADR-0006 and ADR-0007.
 package main
 
 import (
 	"encoding/json"
 	"syscall/js"
 
-	"github.com/bluemir/monosketch/internal/action"
-	"github.com/bluemir/monosketch/internal/buildinfo"
-	"github.com/bluemir/monosketch/internal/geo"
-	"github.com/bluemir/monosketch/internal/interactionbound"
-	"github.com/bluemir/monosketch/internal/shape"
-	"github.com/bluemir/monosketch/internal/state"
+	"github.com/bluemir/nemokan/internal/action"
+	"github.com/bluemir/nemokan/internal/buildinfo"
+	"github.com/bluemir/nemokan/internal/geo"
+	"github.com/bluemir/nemokan/internal/interactionbound"
+	"github.com/bluemir/nemokan/internal/shape"
+	"github.com/bluemir/nemokan/internal/state"
 )
 
 // changeNames are the names JS receives in the change callback.
@@ -36,10 +36,10 @@ type engine struct {
 }
 
 func main() {
-	monosketch := js.Global().Get("Object").New()
-	monosketch.Set("version", js.FuncOf(version))
-	monosketch.Set("start", js.FuncOf(start))
-	js.Global().Set("monosketch", monosketch)
+	nemokan := js.Global().Get("Object").New()
+	nemokan.Set("version", js.FuncOf(version))
+	nemokan.Set("start", js.FuncOf(start))
+	js.Global().Set("nemokan", nemokan)
 
 	// Keep the Go runtime alive so JS can keep calling the exported functions.
 	select {}
@@ -107,7 +107,7 @@ func start(this js.Value, args []js.Value) any {
 // parse reads a JSON string from JS. It returns false and logs the error on failure.
 func parse(value js.Value, target any) bool {
 	if err := json.Unmarshal([]byte(value.String()), target); err != nil {
-		js.Global().Get("console").Call("error", "monosketch: invalid JSON", err.Error())
+		js.Global().Get("console").Call("error", "nemokan: invalid JSON", err.Error())
 		return false
 	}
 	return true
@@ -117,7 +117,7 @@ func parse(value js.Value, target any) bool {
 func stringify(value any) any {
 	data, err := json.Marshal(value)
 	if err != nil {
-		js.Global().Get("console").Call("error", "monosketch: marshal", err.Error())
+		js.Global().Get("console").Call("error", "nemokan: marshal", err.Error())
 		return js.Null()
 	}
 	return string(data)
@@ -152,7 +152,7 @@ func (e *engine) shiftKey(args []js.Value) any {
 func (e *engine) action(args []js.Value) any {
 	oneTime, err := action.ParseOneTime([]byte(args[0].String()))
 	if err != nil {
-		js.Global().Get("console").Call("error", "monosketch: action", err.Error())
+		js.Global().Get("console").Call("error", "nemokan: action", err.Error())
 		return nil
 	}
 	e.actions.SetOneTime(oneTime)
@@ -162,7 +162,7 @@ func (e *engine) action(args []js.Value) any {
 func (e *engine) setRetainable(args []js.Value) any {
 	var retainable action.Retainable
 	if err := retainable.UnmarshalText([]byte(args[0].String())); err != nil {
-		js.Global().Get("console").Call("error", "monosketch: retainable action", err.Error())
+		js.Global().Get("console").Call("error", "nemokan: retainable action", err.Error())
 		return nil
 	}
 	e.actions.SetRetainable(retainable)
@@ -173,7 +173,7 @@ func (e *engine) setRetainable(args []js.Value) any {
 func (e *engine) setAccess(args []js.Value) any {
 	var access state.Access
 	if err := access.UnmarshalText([]byte(args[0].String())); err != nil {
-		js.Global().Get("console").Call("error", "monosketch: access", err.Error())
+		js.Global().Get("console").Call("error", "nemokan: access", err.Error())
 		return nil
 	}
 	e.state.SetAccess(access)
@@ -378,7 +378,7 @@ func (e *engine) file(args []js.Value) any {
 func (e *engine) fileInfo(args []js.Value) any {
 	file, err := shape.ParseFile([]byte(args[0].String()))
 	if err != nil {
-		js.Global().Get("console").Call("error", "monosketch: file", err.Error())
+		js.Global().Get("console").Call("error", "nemokan: file", err.Error())
 		return js.Null()
 	}
 	return map[string]any{
@@ -393,7 +393,7 @@ func (e *engine) fileInfo(args []js.Value) any {
 func (e *engine) fileAsCopy(args []js.Value) any {
 	file, err := shape.ParseFile([]byte(args[0].String()))
 	if err != nil {
-		js.Global().Get("console").Call("error", "monosketch: file", err.Error())
+		js.Global().Get("console").Call("error", "nemokan: file", err.Error())
 		return js.Null()
 	}
 	return stringify(file.AsCopy())
@@ -404,7 +404,7 @@ func (e *engine) openFile(open func(shape.File)) func(args []js.Value) any {
 	return func(args []js.Value) any {
 		file, err := shape.ParseFile([]byte(args[0].String()))
 		if err != nil {
-			js.Global().Get("console").Call("error", "monosketch: file", err.Error())
+			js.Global().Get("console").Call("error", "nemokan: file", err.Error())
 			return nil
 		}
 		open(file)

@@ -9,9 +9,9 @@ import (
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/sirupsen/logrus"
 
-	"github.com/bluemir/monosketch/internal/buildinfo"
-	"github.com/bluemir/monosketch/internal/server"
-	"github.com/bluemir/monosketch/internal/util"
+	"github.com/bluemir/nemokan/internal/buildinfo"
+	"github.com/bluemir/nemokan/internal/server"
+	"github.com/bluemir/nemokan/internal/util"
 )
 
 func Register(cmd *kingpin.CmdClause) {

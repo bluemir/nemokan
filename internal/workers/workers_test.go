@@ -8,8 +8,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/bluemir/monosketch/internal/datastruct"
-	"github.com/bluemir/monosketch/internal/workers"
+	"github.com/bluemir/nemokan/internal/datastruct"
+	"github.com/bluemir/nemokan/internal/workers"
 )
 
 func TestSimpleWorker(t *testing.T) {

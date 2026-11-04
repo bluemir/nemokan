@@ -41,7 +41,7 @@ ADR-0001 과 ADR-0003 에서 두 가지를 미뤄 두었다.
 
 ```
 Go: 상태 변경 → JS 콜백 ("board", "selection" 같은 종류만)
-JS: 다음 프레임에 한 번 → monosketch.board() 등으로 읽어서 그림
+JS: 다음 프레임에 한 번 → nemokan.board() 등으로 읽어서 그림
 ```
 
 - 같은 프레임에 같은 알림이 여러 번 와도 JS 는 한 번만 읽는다. 다음 프레임으로 미루는 throttle 은 JS 가 맡으므로 Go 의 `observable` 에는 넣지 않는다.

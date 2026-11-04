@@ -3,8 +3,8 @@ package state
 import (
 	"slices"
 
-	"github.com/bluemir/monosketch/internal/geo"
-	"github.com/bluemir/monosketch/internal/shape"
+	"github.com/bluemir/nemokan/internal/geo"
+	"github.com/bluemir/nemokan/internal/shape"
 )
 
 // moveShapes moves selectedShapes to the positions newPosition returns, and the lines

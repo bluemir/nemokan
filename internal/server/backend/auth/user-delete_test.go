@@ -10,8 +10,8 @@ import (
 	"github.com/stretchr/testify/require"
 	"gorm.io/gorm"
 
-	"github.com/bluemir/monosketch/internal/pubsub"
-	"github.com/bluemir/monosketch/internal/server/backend/auth"
+	"github.com/bluemir/nemokan/internal/pubsub"
+	"github.com/bluemir/nemokan/internal/server/backend/auth"
 )
 
 // countRows 는 username 에 딸린 행이 몇 개 남았는지 센다

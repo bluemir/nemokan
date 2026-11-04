@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/bluemir/monosketch/internal/util/retry"
+	"github.com/bluemir/nemokan/internal/util/retry"
 )
 
 func TestRetry(t *testing.T) {

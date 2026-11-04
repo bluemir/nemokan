@@ -1,4 +1,4 @@
-module github.com/bluemir/monosketch
+module github.com/bluemir/nemokan
 
 go 1.26.0
 

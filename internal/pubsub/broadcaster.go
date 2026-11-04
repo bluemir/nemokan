@@ -1,7 +1,7 @@
 package pubsub
 
 import (
-	"github.com/bluemir/monosketch/internal/datastruct"
+	"github.com/bluemir/nemokan/internal/datastruct"
 )
 
 type Broadcaster[T any] struct {

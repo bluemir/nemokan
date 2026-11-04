@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/bluemir/monosketch/internal/datastruct"
+	"github.com/bluemir/nemokan/internal/datastruct"
 )
 
 func TestSet(t *testing.T) {

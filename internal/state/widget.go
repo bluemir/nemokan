@@ -3,9 +3,9 @@ package state
 import (
 	"encoding/json"
 
-	"github.com/bluemir/monosketch/internal/cursor"
-	"github.com/bluemir/monosketch/internal/geo"
-	"github.com/bluemir/monosketch/internal/shape"
+	"github.com/bluemir/nemokan/internal/cursor"
+	"github.com/bluemir/nemokan/internal/geo"
+	"github.com/bluemir/nemokan/internal/shape"
 )
 
 // Widgets. See ADR-0014.

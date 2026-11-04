@@ -6,17 +6,17 @@ import (
 	"math"
 	"slices"
 
-	"github.com/bluemir/monosketch/internal/action"
-	"github.com/bluemir/monosketch/internal/bitmap"
-	"github.com/bluemir/monosketch/internal/bitmapmanager"
-	"github.com/bluemir/monosketch/internal/board"
-	"github.com/bluemir/monosketch/internal/cursor"
-	"github.com/bluemir/monosketch/internal/geo"
-	"github.com/bluemir/monosketch/internal/interactionbound"
-	"github.com/bluemir/monosketch/internal/observable"
-	"github.com/bluemir/monosketch/internal/selection"
-	"github.com/bluemir/monosketch/internal/shape"
-	"github.com/bluemir/monosketch/internal/shapesearcher"
+	"github.com/bluemir/nemokan/internal/action"
+	"github.com/bluemir/nemokan/internal/bitmap"
+	"github.com/bluemir/nemokan/internal/bitmapmanager"
+	"github.com/bluemir/nemokan/internal/board"
+	"github.com/bluemir/nemokan/internal/cursor"
+	"github.com/bluemir/nemokan/internal/geo"
+	"github.com/bluemir/nemokan/internal/interactionbound"
+	"github.com/bluemir/nemokan/internal/observable"
+	"github.com/bluemir/nemokan/internal/selection"
+	"github.com/bluemir/nemokan/internal/shape"
+	"github.com/bluemir/nemokan/internal/shapesearcher"
 )
 
 // Change is a kind of change JS reads on the next frame. See ADR-0006.

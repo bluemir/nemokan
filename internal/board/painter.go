@@ -3,8 +3,8 @@ package board
 import (
 	"strings"
 
-	"github.com/bluemir/monosketch/internal/bitmap"
-	"github.com/bluemir/monosketch/internal/geo"
+	"github.com/bluemir/nemokan/internal/bitmap"
+	"github.com/bluemir/nemokan/internal/geo"
 )
 
 // painterBoard holds the pixels of one unit area, at their absolute position.

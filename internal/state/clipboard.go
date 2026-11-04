@@ -1,9 +1,9 @@
 package state
 
 import (
-	"github.com/bluemir/monosketch/internal/clipboard"
-	"github.com/bluemir/monosketch/internal/geo"
-	"github.com/bluemir/monosketch/internal/shape"
+	"github.com/bluemir/nemokan/internal/clipboard"
+	"github.com/bluemir/nemokan/internal/geo"
+	"github.com/bluemir/nemokan/internal/shape"
 )
 
 // TakeClipboardText returns the text to write to the clipboard, once. JS reads it after

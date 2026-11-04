@@ -3,7 +3,7 @@ package components_test
 import (
 	"testing"
 
-	component "github.com/bluemir/monosketch/internal/tui/components"
+	component "github.com/bluemir/nemokan/internal/tui/components"
 )
 
 func TestSelectWraps(t *testing.T) {

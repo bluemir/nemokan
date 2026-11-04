@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/bluemir/monosketch/internal/util"
+	"github.com/bluemir/nemokan/internal/util"
 	"github.com/cockroachdb/errors"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"

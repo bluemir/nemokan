@@ -1,6 +1,6 @@
 package shape
 
-import "github.com/bluemir/monosketch/internal/bitmap"
+import "github.com/bluemir/nemokan/internal/bitmap"
 
 var predefinedAnchorChars = []*AnchorChar{
 	{ID: "A1", DisplayName: "▶", Left: '◀', Right: '▶', Top: '▲', Bottom: '▼'},

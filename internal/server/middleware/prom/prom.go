@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/bluemir/monosketch/internal/buildinfo"
+	"github.com/bluemir/nemokan/internal/buildinfo"
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"

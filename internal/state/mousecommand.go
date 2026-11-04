@@ -4,12 +4,12 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/bluemir/monosketch/internal/bitmap"
-	"github.com/bluemir/monosketch/internal/cursor"
-	"github.com/bluemir/monosketch/internal/geo"
-	"github.com/bluemir/monosketch/internal/interactionbound"
-	"github.com/bluemir/monosketch/internal/selection"
-	"github.com/bluemir/monosketch/internal/shape"
+	"github.com/bluemir/nemokan/internal/bitmap"
+	"github.com/bluemir/nemokan/internal/cursor"
+	"github.com/bluemir/nemokan/internal/geo"
+	"github.com/bluemir/nemokan/internal/interactionbound"
+	"github.com/bluemir/nemokan/internal/selection"
+	"github.com/bluemir/nemokan/internal/shape"
 )
 
 type commandResult int

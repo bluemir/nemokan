@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
-	"github.com/bluemir/monosketch/internal/util"
+	"github.com/bluemir/nemokan/internal/util"
 )
 
 // Bootstrap

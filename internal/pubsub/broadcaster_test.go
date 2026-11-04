@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/bluemir/monosketch/internal/pubsub"
+	"github.com/bluemir/nemokan/internal/pubsub"
 	"github.com/stretchr/testify/assert"
 )
 

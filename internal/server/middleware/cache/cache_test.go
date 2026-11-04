@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/bluemir/monosketch/internal/server/middleware/cache"
+	"github.com/bluemir/nemokan/internal/server/middleware/cache"
 )
 
 func TestCacheMiddleware(t *testing.T) {

@@ -1,6 +1,6 @@
 package state
 
-import "github.com/bluemir/monosketch/internal/geo"
+import "github.com/bluemir/nemokan/internal/geo"
 
 // MousePointer is a mouse state on the board: MouseIdle, MouseMove, MouseDown, MouseDrag,
 // MouseUp, MouseClick or MouseDoubleClick.

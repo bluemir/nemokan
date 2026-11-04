@@ -3,8 +3,8 @@ package state
 import (
 	"fmt"
 
-	"github.com/bluemir/monosketch/internal/action"
-	"github.com/bluemir/monosketch/internal/shape"
+	"github.com/bluemir/nemokan/internal/action"
+	"github.com/bluemir/nemokan/internal/shape"
 )
 
 // Access is what the user can do with the shapes. A server document the user cannot edit is

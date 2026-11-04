@@ -1,6 +1,6 @@
 package board
 
-import "github.com/bluemir/monosketch/internal/bitmap"
+import "github.com/bluemir/nemokan/internal/bitmap"
 
 type Highlight int
 

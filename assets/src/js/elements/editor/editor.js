@@ -17,8 +17,8 @@ const fontFamily = `D2Coding, ui-monospace, Menlo, Consolas, monospace`;
 // Font sizes are the same as the original.
 const minFontSize = 13;
 const maxFontSize = 25;
-const fontSizeKey = "monosketch.fontSize";
-const shapeToolHiddenKey = "monosketch.shapeToolHidden";
+const fontSizeKey = "nemokan.fontSize";
+const shapeToolHiddenKey = "nemokan.shapeToolHidden";
 const backupDelayMillis = 300;
 // exportStatusMillis is how long the result of an export is shown.
 const exportStatusMillis = 2000;
@@ -108,7 +108,7 @@ function readFontSize() {
 	}
 }
 
-const themeKey = "monosketch.theme";
+const themeKey = "nemokan.theme";
 const themes = ["system", "light", "dark"];
 const darkSchemeQuery = matchMedia("(prefers-color-scheme: dark)");
 
@@ -841,12 +841,12 @@ class Editor extends HTMLElement {
 	}
 
 	async #loadEngine() {
-		if (!window.monosketch) {
+		if (!window.nemokan) {
 			const go = new Go();
 			const {instance} = await WebAssembly.instantiateStreaming(fetch(this.getAttribute("wasm-src")), go.importObject);
 			go.run(instance);
 		}
-		this.#engine = window.monosketch.start(change => this.#onChange(change));
+		this.#engine = window.nemokan.start(change => this.#onChange(change));
 		this.#styleOptions = JSON.parse(this.#engine.styleOptions());
 	}
 

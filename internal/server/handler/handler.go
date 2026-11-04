@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"github.com/bluemir/monosketch/internal/server/injector"
+	"github.com/bluemir/nemokan/internal/server/injector"
 )
 
 var (

@@ -7,7 +7,7 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/gin-gonic/gin"
 
-	"github.com/bluemir/monosketch/internal/server/backend/documents"
+	"github.com/bluemir/nemokan/internal/server/backend/documents"
 )
 
 // Server documents. See ADR-0011.

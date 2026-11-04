@@ -6,7 +6,7 @@
 // A document synced with the server also has {serverId, revision, syncedAt}. revision is the
 // server revision the local content is based on. It has changes not sent to the server yet
 // if updatedAt > syncedAt. See ADR-0011.
-const databaseName = "monosketch";
+const databaseName = "nemokan";
 // databaseVersion 2 renamed the store from "projects" to "documents".
 const databaseVersion = 2;
 const storeName = "documents";

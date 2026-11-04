@@ -9,9 +9,9 @@ import (
 	// 그쪽 마커(errors.Mark)를 읽지 못해, 표시해 둔 에러가 여기서 500 으로 떨어진다.
 	"github.com/cockroachdb/errors"
 
-	"github.com/bluemir/monosketch/internal/server/backend/auth"
-	"github.com/bluemir/monosketch/internal/server/backend/documents"
-	"github.com/bluemir/monosketch/internal/server/backend/meta"
+	"github.com/bluemir/nemokan/internal/server/backend/auth"
+	"github.com/bluemir/nemokan/internal/server/backend/documents"
+	"github.com/bluemir/nemokan/internal/server/backend/meta"
 	"github.com/go-playground/validator/v10"
 	"github.com/mattn/go-sqlite3"
 	"github.com/sirupsen/logrus"

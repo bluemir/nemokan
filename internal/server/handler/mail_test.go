@@ -11,14 +11,14 @@ import (
 
 func TestRenderRecoveryMail(t *testing.T) {
 	title, content, err := renderMail("recovery", recoveryMailData{
-		AppName:  "monosketch",
+		AppName:  "nemokan",
 		Username: "alice",
 		Link:     "https://example.com/users/recover/alice.abcdef",
 		Lifetime: 15 * time.Minute,
 	})
 	require.NoError(t, err)
 
-	assert.Equal(t, "[monosketch] 계정 복구 안내", title)
+	assert.Equal(t, "[nemokan] 계정 복구 안내", title)
 	// 제목은 헤더 한 줄이다. 줄바꿈이 남아 있으면 안 된다
 	assert.NotContains(t, title, "\n")
 
@@ -36,7 +36,7 @@ func TestRenderRecoveryMail(t *testing.T) {
 // 한 파서로 둘 다 읽으면 평문에 &amp; 가 나오거나 HTML 에 태그가 그대로 들어간다.
 func TestRenderMailEscaping(t *testing.T) {
 	_, content, err := renderMail("recovery", recoveryMailData{
-		AppName:  "monosketch",
+		AppName:  "nemokan",
 		Username: `<script>alert("x")</script>`,
 		Link:     "https://example.com/users/recover/x.y",
 		Lifetime: time.Minute,
@@ -54,7 +54,7 @@ func TestRenderMailKeepsLink(t *testing.T) {
 	link := "https://example.com/users/recover/alice.aB3-_xyz"
 
 	_, content, err := renderMail("recovery", recoveryMailData{
-		AppName:  "monosketch",
+		AppName:  "nemokan",
 		Username: "alice",
 		Link:     link,
 		Lifetime: time.Minute,
@@ -74,14 +74,14 @@ func TestRenderMailMissingTemplate(t *testing.T) {
 
 func TestRenderVerificationMail(t *testing.T) {
 	title, content, err := renderMail("verify-email", verificationMailData{
-		AppName:  "monosketch",
+		AppName:  "nemokan",
 		Username: "alice",
 		Link:     "https://example.com/users/verify-email/alice.abcdef",
 		Lifetime: 24 * time.Hour,
 	})
 	require.NoError(t, err)
 
-	assert.Equal(t, "[monosketch] 이메일 주소 확인", title)
+	assert.Equal(t, "[nemokan] 이메일 주소 확인", title)
 	assert.NotContains(t, title, "\n")
 
 	for _, body := range []string{content.Text, content.HTML} {

@@ -10,15 +10,15 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/bluemir/monosketch/assets"
-	"github.com/bluemir/monosketch/internal/server/handler"
-	"github.com/bluemir/monosketch/internal/server/handler/auth/resource"
-	"github.com/bluemir/monosketch/internal/server/handler/auth/verb"
-	"github.com/bluemir/monosketch/internal/server/middleware/bootstrap"
-	"github.com/bluemir/monosketch/internal/server/middleware/cache"
+	"github.com/bluemir/nemokan/assets"
+	"github.com/bluemir/nemokan/internal/server/handler"
+	"github.com/bluemir/nemokan/internal/server/handler/auth/resource"
+	"github.com/bluemir/nemokan/internal/server/handler/auth/verb"
+	"github.com/bluemir/nemokan/internal/server/middleware/bootstrap"
+	"github.com/bluemir/nemokan/internal/server/middleware/cache"
 )
 
-// @title monosketch
+// @title nemokan
 // @version 0.1.0
 // @description
 func (server *Server) routes(app gin.IRouter, noRoute func(...gin.HandlerFunc)) {

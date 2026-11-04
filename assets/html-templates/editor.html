@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>monosketch - Editor</title>
+		<title>nemokan - Editor</title>
 		{{ template "snippet/header.html" . }}
 		<script src="/static/{{rev .}}/bundle/wasm/wasm_exec.js"></script>
 		<style>
@@ -22,6 +22,6 @@
 	</head>
 	<body>
 		<!-- server-id is set on /p/<id>, where the document is synced with the server. See ADR-0011. -->
-		<mono-editor wasm-src="/static/{{rev .}}/bundle/wasm/monosketch.wasm" {{with .Param "id"}}server-id="{{.}}"{{end}}></mono-editor>
+		<mono-editor wasm-src="/static/{{rev .}}/bundle/wasm/nemokan.wasm" {{with .Param "id"}}server-id="{{.}}"{{end}}></mono-editor>
 	</body>
 </html>

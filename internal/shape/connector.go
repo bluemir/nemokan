@@ -3,7 +3,7 @@ package shape
 import (
 	"fmt"
 
-	"github.com/bluemir/monosketch/internal/geo"
+	"github.com/bluemir/nemokan/internal/geo"
 )
 
 // LineConnector attaches an end of a line to a box.

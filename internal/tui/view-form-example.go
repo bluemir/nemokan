@@ -7,7 +7,7 @@ import (
 	"charm.land/lipgloss/v2"
 	"charm.land/lipgloss/v2/table"
 
-	"github.com/bluemir/monosketch/internal/tui/components"
+	"github.com/bluemir/nemokan/internal/tui/components"
 )
 
 func FormExample() (tea.Model, tea.Cmd) {

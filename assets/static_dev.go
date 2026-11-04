@@ -23,7 +23,7 @@ func CheckDevAssets() error {
 		"assets/bundle/bm.js/bm.module.js",
 		"assets/bundle/lit-html/lit-html.js",
 		"assets/bundle/wasm/wasm_exec.js",
-		"assets/bundle/wasm/monosketch.wasm",
+		"assets/bundle/wasm/nemokan.wasm",
 		"assets/bundle/d2coding/D2Coding.ttf",
 	}
 	for _, f := range requiredFiles {

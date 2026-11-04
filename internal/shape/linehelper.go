@@ -3,7 +3,7 @@ package shape
 import (
 	"slices"
 
-	"github.com/bluemir/monosketch/internal/geo"
+	"github.com/bluemir/nemokan/internal/geo"
 )
 
 // createJointPoints connects seedPoints with horizontal and vertical segments, following

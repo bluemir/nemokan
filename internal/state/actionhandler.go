@@ -1,9 +1,9 @@
 package state
 
 import (
-	"github.com/bluemir/monosketch/internal/action"
-	"github.com/bluemir/monosketch/internal/geo"
-	"github.com/bluemir/monosketch/internal/shape"
+	"github.com/bluemir/nemokan/internal/action"
+	"github.com/bluemir/nemokan/internal/geo"
+	"github.com/bluemir/nemokan/internal/shape"
 )
 
 // handleOneTimeAction is the Go port of the original OneTimeActionHandler.
