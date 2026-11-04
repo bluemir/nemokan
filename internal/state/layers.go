@@ -4,6 +4,7 @@ import (
 	"slices"
 
 	"github.com/bluemir/monosketch/internal/action"
+	"github.com/bluemir/monosketch/internal/geo"
 	"github.com/bluemir/monosketch/internal/shape"
 )
 
@@ -21,12 +22,15 @@ type Layer struct {
 	Kind shape.WidgetKind `json:"kind,omitempty"`
 	// Name is empty if the user has not named the shape. Text is the text of a text shape,
 	// for the default name.
-	Name       string  `json:"name"`
-	Text       string  `json:"text,omitempty"`
-	IsHidden   bool    `json:"isHidden"`
-	IsLocked   bool    `json:"isLocked"`
-	IsSelected bool    `json:"isSelected"`
-	Items      []Layer `json:"items,omitempty"`
+	Name       string `json:"name"`
+	Text       string `json:"text,omitempty"`
+	IsHidden   bool   `json:"isHidden"`
+	IsLocked   bool   `json:"isLocked"`
+	IsSelected bool   `json:"isSelected"`
+	// Position and Size are the bound of the shape on the board, for going to it.
+	Position geo.Point `json:"position"`
+	Size     geo.Size  `json:"size"`
+	Items    []Layer   `json:"items,omitempty"`
 }
 
 // Layers is what the layers panel shows.
@@ -57,6 +61,8 @@ func (m *Manager) layers(group *shape.Group) []Layer {
 			IsHidden:   item.IsHidden(),
 			IsLocked:   item.IsLocked(),
 			IsSelected: slices.Contains(selected, item),
+			Position:   item.Bound().Position,
+			Size:       item.Bound().Size,
 		}
 		switch item := item.(type) {
 		case *shape.Rectangle:

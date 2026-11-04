@@ -18,6 +18,7 @@ const eyePath = "M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zm10 3a3 3 0 1 0 0-6
 const eyeOffPath = eyePath + "M3 3l18 18";
 const lockPath = "M5 11h14v10H5zM8 11V7a4 4 0 0 1 8 0v4";
 const unlockPath = "M5 11h14v10H5zM8 11V7a4 4 0 0 1 7.5-2";
+const goToPath = "M12 2v4M12 18v4M2 12h4M18 12h4M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10z";
 
 // defaultName is shown when the user has not named the shape: the first line of a text, or
 // the kind of the shape.
@@ -48,14 +49,17 @@ function clearDropPlace(row) {
 	row.classList.remove("drop-above", "drop-below", "drop-into");
 }
 
-// layersTemplate renders the panel. handlers has send, which takes a one time action, and
-// renamingId with startRename and finishRename for renaming a layer in place.
+// layersTemplate renders the panel. handlers has send, which takes a one time action,
+// renamingId with startRename and finishRename for renaming a layer in place, and goTo which
+// selects a layer and shows it on the canvas.
 export function layersTemplate(layers, handlers) {
 	// rows renders the items of one group. parentId is empty for the root. Each item knows the
 	// one below it, as a layer dropped under a row goes above the next lower item.
-	const rows = (items, parentId, depth) => items.map((layer, index) => {
+	// isParentHidden is true when a group above is hidden, as the shape is not shown then.
+	const rows = (items, parentId, depth, isParentHidden) => items.map((layer, index) => {
 		const lowerId = items[index + 1]?.id ?? "";
 		const isGroup = layer.type === "group";
+		const isShown = !isParentHidden && !layer.isHidden;
 		const drop = event => {
 			event.preventDefault();
 			clearDropPlace(event.currentTarget);
@@ -115,6 +119,14 @@ export function layersTemplate(layers, handlers) {
 						>
 					` : html`<span class=${layer.name ? "" : "default-name"}>${layer.name || defaultName(layer)}</span>`}
 					<button
+						title="Go to"
+						?disabled=${!isShown}
+						@click=${event => {
+							event.stopPropagation();
+							handlers.goTo(layer);
+						}}
+					>${strokeIcon(goToPath)}</button>
+					<button
 						aria-pressed=${layer.isHidden}
 						title=${layer.isHidden ? "Show" : "Hide"}
 						@click=${event => {
@@ -131,7 +143,7 @@ export function layersTemplate(layers, handlers) {
 						}}
 					>${strokeIcon(layer.isLocked ? lockPath : unlockPath)}</button>
 				</div>
-				${isGroup ? html`<ul>${rows(layer.items ?? [], layer.id, depth + 1)}</ul>` : ""}
+				${isGroup ? html`<ul>${rows(layer.items ?? [], layer.id, depth + 1, !isShown)}</ul>` : ""}
 			</li>
 		`;
 	});
@@ -141,7 +153,7 @@ export function layersTemplate(layers, handlers) {
 			<h2>Layers</h2>
 			${layers.items.length === 0
 				? html`<p>No shapes yet.</p>`
-				: html`<ul>${rows(layers.items, "", 0)}</ul>`}
+				: html`<ul>${rows(layers.items, "", 0, false)}</ul>`}
 		</section>
 	`;
 }

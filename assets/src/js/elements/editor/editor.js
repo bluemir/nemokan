@@ -652,6 +652,7 @@ class Editor extends HTMLElement {
 						renamingId: this.#renamingLayerId,
 						startRename: id => this.#startRenameLayer(id),
 						finishRename: action => this.#finishRenameLayer(action),
+						goTo: layer => this.#goToLayer(layer),
 					})}
 					${shapeToolTemplate(this.#shapeTool, this.#styleOptions, action => this.#action(action))}
 				</aside>
@@ -1696,6 +1697,25 @@ class Editor extends HTMLElement {
 			this.#action(action);
 		}
 		this.render();
+	}
+
+	// goToLayer selects the shape of layer. If the shape is not all on the canvas, it scrolls
+	// the shape to the middle of the canvas.
+	#goToLayer(layer) {
+		this.#action({type: "selectShape", shapeId: layer.id});
+		const cell = this.#cellSizePx;
+		const leftPx = layer.position.left * cell.width + this.#offsetPx.left;
+		const topPx = layer.position.top * cell.height + this.#offsetPx.top;
+		const isOnCanvas = leftPx >= 0 && topPx >= 0
+			&& leftPx + layer.size.width * cell.width <= this.#boardSizePx.width
+			&& topPx + layer.size.height * cell.height <= this.#boardSizePx.height;
+		if (isOnCanvas) {
+			return;
+		}
+		this.#setOffset({
+			left: Math.round(this.#boardSizePx.width / 2 - (layer.position.left + layer.size.width / 2) * cell.width),
+			top: Math.round(this.#boardSizePx.height / 2 - (layer.position.top + layer.size.height / 2) * cell.height),
+		});
 	}
 }
 customElements.define("mono-editor", Editor);
