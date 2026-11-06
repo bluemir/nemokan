@@ -162,12 +162,62 @@
 	- [ ] 페이지 번호와 탭을 캔버스에서 눌러 현재 페이지, 활성 탭 바꾸기 (지금은 속성 패널에서만)
 	- [ ] 목록, 탭, 경로에 항목을 캔버스에서 더하고 빼기 (지금은 속성 패널에서만)
 
+## 코드 정리
+
+AGENTS.md 의 기준(flag 인자, bool 이 많은 구조체, 되풀이되는 if/else, 과한 추상화)과 쓰지 않는 코드를 찾은 목록이다.
+
+- 버그
+	- [x] 그룹을 지울 때 안의 도형이 `shape.Manager.allShapes` 에 남음 (`RemoveShape` 의 TODO, `unregister` 가 재귀하지 않음)
+		- [x] 안에 도형이 든 그룹을 더할 때 안의 도형이 등록되지 않는 것도 같이 고치기
+	- [x] `updateConnector` 가 `MoveLineAnchor` 명령을 거치지 않는 것이 버그인지 확인 (`state/boundhelper.go`)
+	- [x] `bitmapmanager` 의 비트맵 캐시가 지운 도형과 이전 문서의 것을 비우지 않음
+- Go 편집 엔진
+	- [ ] flag 인자 정리 (원본 동작을 테스트로 고정한 뒤)
+		- `Line.MoveAnchorPoint(isReduceRequired, justMoveAnchor)`, `Line.MoveEdge(isReduceRequired)`
+		- `MoveLineAnchor`, `MoveLineEdge` 명령의 `IsUpdateConfirmed`, `JustMoveAnchor`
+		- 끌기 명령마다 넘기는 `isUpdateConfirmed` 를 마우스를 뗄 때의 확정 단계로 나누기
+		- `Shape.Serializable(isIDIncluded)` 는 저장 형식의 값과 맞물려 있어 이득이 적음. 분기가 늘면 다시 봄
+	- [ ] `addTextCommand{isTextEditable}` 를 사각형 추가와 글자 추가 명령으로 나누기
+	- [ ] `startTextEditing(isFreeText)` 를 자유 글자와 상자 안 글자로 나누기
+	- [ ] `textBitmap(isTextEditing)` 의 flag 없애기
+	- [ ] `commandUnknown` 을 없애기 (`commandWorking` 과 다르게 다루는 곳이 없음)
+	- [ ] `TextEditing.onFinish(text)` 의 쓰지 않는 인자 없애기
+	- [ ] 쓰지 않는 코드 지우기
+		- `bitmap` 의 NinePatch, Pattern, Range (테스트에서만 씀). 남는 `Drawable` 인터페이스는 구현이 하나뿐
+		- `shape.Manager.RootValue`, `NotifyDocumentUpdate`
+		- `state.Manager.Selection()`, `shape.NewRectangleByPoints`
+		- `selection.Manager.FocusingShape` 는 지켜보는 곳이 없으니 observable 대신 그냥 값으로
+	- [ ] 틀린 주석 고치고, 원본에서 옮겨 온 TODO 는 이 목록으로 옮기거나 지우기
+- 서버
+	- [ ] 쓰지 않는 템플릿 코드 지우기
+		- SSE(`/stream`, `events.js`), WebSocket(`/ws`), http2 push(`/push`)
+		- TUI 예제(`cmd/tui`, `internal/tui`)
+		- 빈 controller, `internal/workers`, `util/httpproxy`, `util/httputil`, `util/retry`
+		- jobs 의 `Find`, `FindWithOption`
+		- 프런트엔드가 쓰지 않는 `/authn/ping`, `/authz/ping`, `/can/:verb`, `/can`
+		- `getTLSConfig` 의 늘 nil 인 client CA 인자, SPA 용 `AbortIfHasPrefix` 와 주석
+	- [ ] `docker.mk`, `deploy.mk` 지우기 (Dockerfile 과 deployment 를 지웠음)
+	- [ ] 목록 응답 모양 맞추기 (패스키만 `{items}`, 나머지는 배열)
+	- [ ] `gin.SetMode` 를 한 번만 부르고, 템플릿의 오래된 주석 지우기
+	- [ ] 결정 필요: OAuth 와 service account 코드를 지울지 (지금 쓰는 곳 없음)
+	- [ ] 결정 필요: 사용자를 지울 때 보내는 이벤트를 받는 곳이 없음. 그 사용자의 문서를 어떻게 할지
+	- [ ] 결정 필요: swagger 를 남길지 (일부 핸들러에만 주석이 있음)
+	- [ ] 결정 필요: 쓰지 않는 웹 컴포넌트(`example.js`, `components/` 의 alert, card, icon, input, pagination, tabs)를 지울지
+- 편집기 JS
+	- [ ] 서버 문서 쪽(동기화, 충돌, 공유, 복사)을 `editor.js` 에서 나누기. 지금은 `#serverId` 분기가 곳곳에 있음
+	- [ ] 테마 토큰을 `theme.css` 하나로 모으고, 편집기 테마 설정이 `<html data-theme>` 를 바꾸게 하기
+	- [ ] D2Coding `@font-face` 를 공통 CSS 로 옮기기 (다른 페이지는 글꼴이 없으면 대체 글꼴로 보임)
+	- [ ] 편집기 `<style>` 을 값 끼워 넣기 없는 CSS 파일로 빼기 (셀 높이, 글꼴은 CSS 변수로)
+	- [ ] 캔버스 그리기를 `canvas.js` 로 나누기, 넓은 글자 한 줄 그리기를 PNG 내보내기와 함께 쓰기
+	- [ ] `#applyOpeningFile({isCopy})` 의 flag 없애기
+	- [ ] 문서 메뉴의 `hidePopover()` 7번, 대화상자 직접 닫기를 `popovertarget`, `<form method="dialog">` 로 바꾸기
+	- [ ] 레이어 이름 바꾸기 상태를 `layers.js` 로 옮기기
+	- [ ] 도형 아이콘과 단축키 표를 한 곳에 두기
+	- [ ] 전역 `textarea` 규칙을 캔버스 편집칸으로 좁히고 위젯 칸에서 되돌리는 규칙 지우기
+	- [x] 결정 필요: 읽기 전용 여부를 JS 와 Go 가 따로 가짐. 어느 쪽이 기준인지
+
 ## Backlog
 
-- [ ] flag 인자 정리 (원본 동작을 테스트로 고정한 뒤)
-	- `Line.MoveAnchorPoint(isReduceRequired, justMoveAnchor)`, `Line.MoveEdge(isReduceRequired)`
-	- `MoveLineAnchor`, `MoveLineEdge` 명령의 `IsUpdateConfirmed`, `JustMoveAnchor`
-	- `Shape.Serializable(isIDIncluded)`
 - [ ] 소유 문서에 편집자 지정
 - [ ] 소유 문서를 익명 문서로 복사 또는 전환하는 기능 검토
 	- 복사: 새 ID 의 익명 문서를 만들고 소유 문서는 유지
