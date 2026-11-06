@@ -39,8 +39,6 @@ func (a *Access) UnmarshalText(text []byte) error {
 	return nil
 }
 
-func (m *Manager) Access() Access { return m.access }
-
 // SetAccess also stops adding shapes and hides the handles for changing shapes, which
 // AccessView does not allow.
 func (m *Manager) SetAccess(access Access) {

@@ -1067,6 +1067,8 @@ class Editor extends HTMLElement {
 		return this.#server !== null && !this.#server.canEdit;
 	}
 
+	// setServer is the only place that changes both the server permission and the engine access,
+	// so the two never differ. The server response decides both. See ADR-0012.
 	#setServer(serverDocument) {
 		this.#server = serverDocument;
 		this.#engine.setAccess(serverDocument.canEdit ? "edit" : "view");
