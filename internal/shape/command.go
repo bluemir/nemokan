@@ -159,7 +159,6 @@ func (c RemoveShape) affectedParent(manager *Manager) *Group {
 }
 
 func (c RemoveShape) execute(manager *Manager, parent *Group) {
-	// TODO: This hasn't cleaned group's items. Fix this
 	parent.remove(c.Shape)
 	manager.unregister(c.Shape)
 

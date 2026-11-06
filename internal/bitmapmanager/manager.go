@@ -21,8 +21,18 @@ func New() *Manager {
 	return &Manager{idToBitmap: map[string]versionedBitmap{}}
 }
 
-// Bitmap returns the bitmap of target, or nil for a group. Groups are not drawn since they
-// change very frequently.
+// RemoveMissing drops the bitmaps of the shapes which are no longer in shapes: removed shapes
+// and the shapes of a document which was closed.
+func (m *Manager) RemoveMissing(shapes *shape.Manager) {
+	for id := range m.idToBitmap {
+		if _, ok := shapes.Shape(id); !ok {
+			delete(m.idToBitmap, id)
+		}
+	}
+}
+
+// Bitmap returns the bitmap of target, or nil for a group. A group has no bitmap of its own;
+// its items are drawn one by one.
 func (m *Manager) Bitmap(target shape.Shape) *bitmap.Bitmap {
 	if cached, ok := m.idToBitmap[target.ID()]; ok && cached.versionCode == target.VersionCode() {
 		return cached.bitmap

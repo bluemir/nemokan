@@ -232,3 +232,37 @@ func TestManager_MoveShape(t *testing.T) {
 	_, ok := target.Shape(group.ID())
 	assert.False(t, ok)
 }
+
+func TestManager_RemoveGroup_UnregistersItems(t *testing.T) {
+	target := NewManager()
+	outer := NewGroup("", "")
+	inner := NewGroup("", outer.ID())
+	rectangle := NewRectangle(geo.Rect{}, "", inner.ID())
+	for _, shape := range []Shape{outer, inner, rectangle, NewRectangle(geo.Rect{}, "", outer.ID())} {
+		target.Execute(AddShape{Shape: shape})
+	}
+
+	target.Execute(RemoveShape{Shape: outer})
+
+	for _, shape := range []Shape{outer, inner, rectangle} {
+		_, ok := target.Shape(shape.ID())
+		assert.False(t, ok, shape.ID())
+	}
+}
+
+func TestManager_AddGroup_RegistersItems(t *testing.T) {
+	// A group with items is added as a whole, as when a group is pasted.
+	group := NewGroup("", "")
+	inner := NewGroup("", group.ID())
+	rectangle := NewRectangle(geo.Rect{}, "", inner.ID())
+	group.add(inner)
+	inner.add(rectangle)
+
+	target := NewManager()
+	target.Execute(AddShape{Shape: group})
+
+	for _, shape := range []Shape{group, inner, rectangle} {
+		_, ok := target.Shape(shape.ID())
+		assert.True(t, ok, shape.ID())
+	}
+}

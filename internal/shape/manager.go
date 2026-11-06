@@ -91,12 +91,22 @@ func (m *Manager) Shape(shapeID string) (Shape, bool) {
 	return shape, ok
 }
 
+// register adds shape and, for a group, every shape under it.
 func (m *Manager) register(shape Shape) {
 	m.allShapes[shape.ID()] = shape
+	if group, ok := shape.(*Group); ok {
+		registerAll(group, m.allShapes)
+	}
 }
 
+// unregister removes shape and, for a group, every shape under it.
 func (m *Manager) unregister(shape Shape) {
 	delete(m.allShapes, shape.ID())
+	if group, ok := shape.(*Group); ok {
+		for _, item := range group.Items() {
+			m.unregister(item)
+		}
+	}
 }
 
 func (m *Manager) ancestors(group *Group) []*Group {

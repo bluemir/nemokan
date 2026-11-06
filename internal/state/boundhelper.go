@@ -123,6 +123,8 @@ func (m *Manager) updateConnector(connector shape.LineConnector, newBound geo.Re
 		Anchor: connector.Anchor,
 		Point:  connector.PointInNewBound(line.Direction(connector.Anchor), newBound),
 	}
+	// Not through the MoveLineAnchor command, which removes the connector when it has no shape
+	// to connect. The shape which moves updates the versions up to the root.
 	line.MoveAnchorPoint(anchorPointUpdate, isUpdateConfirmed, true)
 }
 

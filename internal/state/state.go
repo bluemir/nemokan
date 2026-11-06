@@ -268,6 +268,7 @@ func (m *Manager) redraw() {
 	m.searcher.Clear(windowBound)
 	m.board.ClearAndSetWindow(windowBound)
 	m.drawShape(m.shapeManager.Root())
+	m.bitmapManager.RemoveMissing(m.shapeManager)
 }
 
 func (m *Manager) drawShape(target shape.Shape) {
