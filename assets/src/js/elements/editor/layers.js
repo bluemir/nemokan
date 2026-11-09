@@ -1,5 +1,6 @@
 import {html} from 'lit-html';
 import {findWidget} from "./widgets.js";
+import {shortcuts, keyLabel} from "./shortcuts.js";
 
 // The layers panel. Go keeps the layers (state.Layers) and each change goes back to Go as a
 // one time action. See ADR-0013.
@@ -47,6 +48,22 @@ function dropPlace(event, isGroup) {
 
 function clearDropPlace(row) {
 	row.classList.remove("drop-above", "drop-below", "drop-into");
+}
+
+// selectedLayers returns the selected layers of the whole tree with the id of the group that
+// holds each one. parentId is empty for the root.
+function selectedLayers(items, parentId) {
+	return items.flatMap(layer => [
+		...(layer.isSelected ? [{layer, parentId}] : []),
+		...selectedLayers(layer.items ?? [], layer.id),
+	]);
+}
+
+// shortcutTitle returns a button title with the key of the shortcut that does the same action,
+// such as "Group (⌘ G)".
+function shortcutTitle(label, actionType) {
+	const shortcut = shortcuts.find(shortcut => shortcut.action?.type === actionType);
+	return `${label} (${keyLabel(shortcut)})`;
 }
 
 // layersTemplate renders the panel. handlers has send, which takes a one time action,
@@ -148,12 +165,21 @@ export function layersTemplate(layers, handlers) {
 		`;
 	});
 
+	// Shapes are grouped only when at least 2 of them are in the same group. See GroupShapes.
+	const selected = selectedLayers(layers.items, "");
+	const canGroup = selected.length >= 2 && selected.every(({parentId}) => parentId === selected[0].parentId);
+	const canUngroup = selected.some(({layer}) => layer.type === "group");
+
 	return html`
 		<section id="layers">
 			<h2>Layers</h2>
 			${layers.items.length === 0
 				? html`<p>No shapes yet.</p>`
 				: html`<ul>${rows(layers.items, "", 0, false)}</ul>`}
+			<menu>
+				<li><button title=${shortcutTitle("Group the selected shapes", "groupShapes")} ?disabled=${!canGroup} @click=${() => handlers.send({type: "groupShapes"})}>Group</button></li>
+				<li><button title=${shortcutTitle("Ungroup the selected groups", "ungroupShapes")} ?disabled=${!canUngroup} @click=${() => handlers.send({type: "ungroupShapes"})}>Ungroup</button></li>
+			</menu>
 		</section>
 	`;
 }

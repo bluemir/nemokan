@@ -431,14 +431,29 @@ class Editor extends HTMLElement {
 				}
 				#layers {
 					flex: none;
+					display: flex;
+					flex-direction: column;
 					max-height: 40%;
-					overflow-y: auto;
 					border-bottom: 1px solid var(--border);
 				}
 				#layers ul {
 					margin: 0;
 					padding: 0;
 					list-style: none;
+				}
+				#layers > ul {
+					min-height: 0;
+					overflow-y: auto;
+				}
+				#layers > menu {
+					padding: 0.25rem 0.5rem;
+					border-top: 1px solid var(--border);
+				}
+				#layers > menu li {
+					flex: 1;
+				}
+				#layers > menu button {
+					width: 100%;
 				}
 				#layers > p {
 					margin: 0.75rem;
