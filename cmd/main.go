@@ -9,6 +9,7 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/sirupsen/logrus"
 
+	renderCmd "github.com/bluemir/nemokan/cmd/render"
 	serverCmd "github.com/bluemir/nemokan/cmd/server"
 	tuiCmd "github.com/bluemir/nemokan/cmd/tui"
 	"github.com/bluemir/nemokan/internal/buildinfo"
@@ -62,6 +63,7 @@ func Run() error {
 		return nil
 	})
 
+	renderCmd.Register(app.Command("render", "render .mono file to text"))
 	serverCmd.Register(app.Command("server", "server"))
 	tuiCmd.Register(app.Command("tui", "tui example"))
 
