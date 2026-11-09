@@ -639,10 +639,10 @@ class Editor extends HTMLElement {
 			</aside>
 			<main>
 				<canvas
-					@mousedown=${event => this.#mouseDown(event)}
-					@mouseup=${event => this.#mouse("mouseUp", event)}
-					@mousemove=${event => this.#mouseMove(event)}
-					@mouseleave=${() => this.#setPointerCell(null)}
+					@pointerdown=${event => this.#mouseDown(event)}
+					@pointerup=${event => this.#mouse("mouseUp", event)}
+					@pointermove=${event => this.#mouseMove(event)}
+					@pointerleave=${() => this.#setPointerCell(null)}
 					@wheel=${event => this.#wheel(event)}
 				></canvas>
 				${this.#textEditing ? html`
@@ -1576,6 +1576,8 @@ class Editor extends HTMLElement {
 
 	// mouseDown takes the focus from a field, such as a number in the shape tool, as the canvas
 	// cannot be focused. Otherwise key shortcuts keep going to the field.
+	// It captures the pointer, so the canvas gets the moves and the release even when the mouse
+	// leaves it during a drag. Otherwise a drag released outside goes on until the next click.
 	#mouseDown(event) {
 		this.shadowRoot.activeElement?.blur();
 		if (this.#isOnAxesCorner(event)) {
@@ -1585,6 +1587,7 @@ class Editor extends HTMLElement {
 		if (event.offsetX < axisWidthPx || event.offsetY < axisHeightPx) {
 			return;
 		}
+		this.#canvas.setPointerCapture(event.pointerId);
 		this.#mouse("mouseDown", event);
 	}
 
