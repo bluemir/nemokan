@@ -196,7 +196,10 @@ AGENTS.md 의 기준(flag 인자, bool 이 많은 구조체, 되풀이되는 if/
 		- jobs 의 `Find`, `FindWithOption`
 		- 프런트엔드가 쓰지 않는 `/authn/ping`, `/authz/ping`, `/can/:verb`, `/can`
 		- `getTLSConfig` 의 늘 nil 인 client CA 인자, SPA 용 `AbortIfHasPrefix` 와 주석
-	- [ ] `docker.mk`, `deploy.mk` 지우기 (Dockerfile 과 deployment 를 지웠음)
+	- [ ] `docker.mk`, `deploy.mk` 지우기 (Dockerfile 과 k8s 설정을 지웠음)
+	- [ ] 세션 쿠키 서명 키를 빌드 정보(`buildinfo.Signature()`)가 아닌 비밀 값으로 바꾸기
+		- 지금은 배포할 때마다 모두 로그아웃되고, 버전과 빌드 시각을 알면 키를 짐작할 수 있음
+	- [ ] 쓰지 않는 `--salt` 플래그 지우기 (비밀번호 salt 는 사용자마다 만듦)
 	- [ ] 목록 응답 모양 맞추기 (패스키만 `{items}`, 나머지는 배열)
 	- [ ] `gin.SetMode` 를 한 번만 부르고, 템플릿의 오래된 주석 지우기
 	- [ ] 결정 필요: OAuth 와 service account 코드를 지울지 (지금 쓰는 곳 없음)

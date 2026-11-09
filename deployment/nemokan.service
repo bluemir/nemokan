@@ -1,0 +1,30 @@
+# systemd user unit for nemokan.
+#
+# Install:
+#   make prod install                 # builds and links ~/.local/bin/nemokan
+#   mkdir -p ~/.config/nemokan ~/.config/systemd/user
+#   cp deployment/config.hjson ~/.config/nemokan/config.hjson   # then edit it
+#   cp deployment/nemokan.service ~/.config/systemd/user/
+#   systemctl --user daemon-reload
+#   systemctl --user enable --now nemokan
+#   loginctl enable-linger "$USER"    # keep running after logout and start on boot
+#
+# %h is the home directory, %E is ~/.config and %S is ~/.local/state.
+
+[Unit]
+Description=nemokan
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=%h/.local/bin/nemokan server \
+	--bind 127.0.0.1:8080 \
+	--config %E/nemokan/config.hjson \
+	--db-path %S/nemokan/nemokan.db
+# Creates ~/.local/state/nemokan for the database.
+StateDirectory=nemokan
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=default.target
