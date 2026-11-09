@@ -5,7 +5,7 @@ import {createServerDocument, getServerDocument, isLoggedIn, setServerDocumentVi
 import {download, openFile, saveFile} from "./files.js";
 import {markdown, png, svg} from "./export.js";
 import {shapeToolTemplate} from "./shapetool.js";
-import {layersTemplate} from "./layers.js";
+import {layersTemplate, selectedLayers} from "./layers.js";
 import {findWidget, retainableOf, widgets} from "./widgets.js";
 
 // The Go engine does the editing. This element forwards events to it and draws what it
@@ -158,6 +158,9 @@ class Editor extends HTMLElement {
 	#textEditing = null;
 	#shapeTool = {};
 	#layers = {items: [], workingGroupId: ""};
+	// selectedLayerIds is the selection the layers panel was last scrolled to, so the panel
+	// scrolls only when the selection changes, not when a layer is renamed or hidden.
+	#selectedLayerIds = "";
 	// renamingLayerId is the layer being renamed in place.
 	#renamingLayerId = null;
 	#styleOptions = {fill: [], stroke: [], head: []};
@@ -978,6 +981,9 @@ class Editor extends HTMLElement {
 				this.shadowRoot.querySelector("textarea").focus();
 			}
 		}
+		if (changes.has("layers")) {
+			this.#scrollToSelectedLayer();
+		}
 		this.#draw();
 	}
 
@@ -1696,6 +1702,22 @@ class Editor extends HTMLElement {
 
 	#action(action) {
 		this.#engine.action(JSON.stringify(action));
+	}
+
+	// scrollToSelectedLayer shows the first selected layer in the panel when the selection has
+	// changed, such as by clicking a shape on the canvas.
+	#scrollToSelectedLayer() {
+		const selected = selectedLayers(this.#layers.items, "");
+		const ids = selected.map(({layer}) => layer.id).join(",");
+		if (ids === this.#selectedLayerIds) {
+			return;
+		}
+		this.#selectedLayerIds = ids;
+		if (selected.length === 0) {
+			return;
+		}
+		const row = this.shadowRoot.querySelector(`#layers .layer[data-id="${CSS.escape(selected[0].layer.id)}"]`);
+		row?.scrollIntoView({block: "nearest", container: "nearest"});
 	}
 
 	#startRenameLayer(id) {

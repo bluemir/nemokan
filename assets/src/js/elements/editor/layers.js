@@ -50,9 +50,9 @@ function clearDropPlace(row) {
 	row.classList.remove("drop-above", "drop-below", "drop-into");
 }
 
-// selectedLayers returns the selected layers of the whole tree with the id of the group that
-// holds each one. parentId is empty for the root.
-function selectedLayers(items, parentId) {
+// selectedLayers returns the selected layers of the whole tree, in the order of the panel, with
+// the id of the group that holds each one. parentId is empty for the root.
+export function selectedLayers(items, parentId) {
 	return items.flatMap(layer => [
 		...(layer.isSelected ? [{layer, parentId}] : []),
 		...selectedLayers(layer.items ?? [], layer.id),
@@ -99,6 +99,7 @@ export function layersTemplate(layers, handlers) {
 			<li>
 				<div
 					class="layer"
+					data-id=${layer.id}
 					style="padding-left: ${0.5 + depth}rem"
 					draggable=${handlers.renamingId === layer.id ? "false" : "true"}
 					aria-selected=${layer.isSelected}
